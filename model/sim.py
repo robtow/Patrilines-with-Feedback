@@ -10,14 +10,14 @@ POP_SIZE = 1000
 GENERATIONS = 100
 TRIALS = 20
 
-SKEW_VALUES = [1.0, 1.02, 1.05, 1.1, 1.2]
+SKEW_VALUES = [1.0, 1.02, 1.05, 1.1]
 
-# Multiplicative lineage-specific noise.
-# 0.0 = deterministic mean-field model
-# try 0.1, 0.2, 0.3
 NOISE_SIGMA = 0.2
 
-# For the sample-run panel
+# Threshold parameters
+MIN_LINEAGE_SIZE = 10
+PENALTY = 0.2
+
 SAMPLE_SKEW = 1.05
 SAMPLE_RUNS = 6
 
@@ -58,6 +58,10 @@ def run_once(skew, noise_sigma):
 
         # Mean-field concentration
         probs = probs ** skew
+
+        # Threshold penalty (nonlinear filter)
+        penalty_mask = counts < MIN_LINEAGE_SIZE
+        probs[penalty_mask] *= PENALTY
 
         # Lineage-specific multiplicative noise
         if noise_sigma > 0:
@@ -131,7 +135,7 @@ def plot_results(results, samples):
     ax = axes[0]
     for skew, data in results.items():
         ax.plot(data["entropy"], label=f"skew={skew}")
-    ax.set_title(f"Shannon Entropy (average over {TRIALS} trials, noise_sigma={NOISE_SIGMA})")
+    ax.set_title(f"Shannon Entropy (avg over {TRIALS} trials, noise_sigma={NOISE_SIGMA})")
     ax.set_ylabel("H")
     ax.legend()
 
@@ -149,7 +153,7 @@ def plot_results(results, samples):
     ax.set_title("Active Lineages")
     ax.set_ylabel("Count")
 
-    # Sample trajectories for one skew
+    # Sample trajectories
     ax = axes[3]
     for i, sample in enumerate(samples):
         ax.plot(sample["active"], label=f"run {i+1}")
@@ -159,8 +163,8 @@ def plot_results(results, samples):
     ax.legend(ncol=3, fontsize=8)
 
     plt.tight_layout()
-    plt.savefig("figures/sim_v0_3.png", dpi=150)
-    print("Saved plot to figures/sim_v0_3.png")
+    plt.savefig("figures/sim_v0_4.png", dpi=150)
+    print("Saved plot to figures/sim_v0_4.png")
     plt.show()
 
 
@@ -172,3 +176,4 @@ if __name__ == "__main__":
     results = run_experiments()
     samples = run_sample_trajectories(SAMPLE_SKEW, NOISE_SIGMA, SAMPLE_RUNS)
     plot_results(results, samples)
+
