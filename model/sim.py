@@ -14,9 +14,11 @@ SKEW_VALUES = [1.0, 1.02, 1.05, 1.1]
 
 NOISE_SIGMA = 0.2
 
-# Threshold parameters
+# Threshold / fragility parameters
 MIN_LINEAGE_SIZE = 10
-PENALTY = 0.2
+# FRAGILITY_ALPHA = 2.0   # larger = harsher collapse below threshold
+FRAGILITY_ALPHA = 3.0   # larger = harsher collapse below threshold
+MIN_PENALTY = 0.02      # floor so weak lineages are not instantly zeroed
 
 SAMPLE_SKEW = 1.05
 SAMPLE_RUNS = 6
@@ -42,6 +44,22 @@ def effective_lineages(counts):
     return np.exp(shannon_entropy(counts))
 
 
+def fragility_multiplier(counts):
+    """
+    For lineages above threshold, multiplier is 1.
+    Below threshold, multiplier falls progressively toward MIN_PENALTY.
+    """
+    counts = np.array(counts, dtype=float)
+    ratio = counts / MIN_LINEAGE_SIZE
+    ratio = np.clip(ratio, 0.0, 1.0)
+
+    shaped = ratio ** FRAGILITY_ALPHA
+    shaped = np.where(counts >= MIN_LINEAGE_SIZE, 1.0, shaped)
+    shaped = np.maximum(shaped, MIN_PENALTY)
+
+    return shaped
+
+
 # -----------------------------
 # Single run
 # -----------------------------
@@ -59,9 +77,8 @@ def run_once(skew, noise_sigma):
         # Mean-field concentration
         probs = probs ** skew
 
-        # Threshold penalty (nonlinear filter)
-        penalty_mask = counts < MIN_LINEAGE_SIZE
-        probs[penalty_mask] *= PENALTY
+        # Progressive fragility below threshold
+        probs = probs * fragility_multiplier(counts)
 
         # Lineage-specific multiplicative noise
         if noise_sigma > 0:
@@ -135,7 +152,9 @@ def plot_results(results, samples):
     ax = axes[0]
     for skew, data in results.items():
         ax.plot(data["entropy"], label=f"skew={skew}")
-    ax.set_title(f"Shannon Entropy (avg over {TRIALS} trials, noise_sigma={NOISE_SIGMA})")
+    ax.set_title(
+        f"Shannon Entropy (avg over {TRIALS} trials, noise_sigma={NOISE_SIGMA}, alpha={FRAGILITY_ALPHA})"
+    )
     ax.set_ylabel("H")
     ax.legend()
 
@@ -163,8 +182,8 @@ def plot_results(results, samples):
     ax.legend(ncol=3, fontsize=8)
 
     plt.tight_layout()
-    plt.savefig("figures/sim_v0_4.png", dpi=150)
-    print("Saved plot to figures/sim_v0_4.png")
+    plt.savefig("figures/sim_v0_5.png", dpi=150)
+    print("Saved plot to figures/sim_v0_5.png")
     plt.show()
 
 
@@ -176,4 +195,3 @@ if __name__ == "__main__":
     results = run_experiments()
     samples = run_sample_trajectories(SAMPLE_SKEW, NOISE_SIGMA, SAMPLE_RUNS)
     plot_results(results, samples)
-

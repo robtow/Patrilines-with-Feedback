@@ -40,3 +40,24 @@ Next:
 - test for punctuated pruning behavior
 
 
+## 2026-03-20 (model v0.5)
+
+Implemented:
+- shaped fragility (state-dependent threshold)
+- fragility increases as lineage size falls
+
+Result:
+- clear shift from smooth decay to uneven, clustered pruning
+- lineages linger near threshold, then collapse more rapidly
+- timing of collapse varies across runs
+
+Interpretation:
+- threshold introduces local positive feedback
+- produces heterogeneous collapse timing
+- explains appearance of punctuated demographic events without external shocks
+
+Next:
+- introduce leakage across lineages (EPP / reassignment)
+- examine interaction between leakage and fragility
+
+
