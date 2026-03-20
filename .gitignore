@@ -14,3 +14,5 @@ data/*.csv
 # Figures (optional; keep or remove depending on taste)
 figures/*.png
 
+# Virtual environment
+venv/
