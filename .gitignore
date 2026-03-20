@@ -16,3 +16,6 @@ figures/*.png
 
 # Virtual environment
 venv/
+
+# LibreOffice lock files
+.~lock*

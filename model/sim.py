@@ -16,9 +16,12 @@ NOISE_SIGMA = 0.2
 
 # Threshold / fragility parameters
 MIN_LINEAGE_SIZE = 10
-# FRAGILITY_ALPHA = 2.0   # larger = harsher collapse below threshold
-FRAGILITY_ALPHA = 3.0   # larger = harsher collapse below threshold
-MIN_PENALTY = 0.02      # floor so weak lineages are not instantly zeroed
+FRAGILITY_ALPHA = 3.0
+MIN_PENALTY = 0.02
+
+# EPP / leakage parameters
+EPP_RATE = 0.05
+EPP_STATUS_WEIGHT = 1.0   # 0.0 = pure random, 1.0 = pure status-weighted
 
 SAMPLE_SKEW = 1.05
 SAMPLE_RUNS = 6
@@ -60,6 +63,14 @@ def fragility_multiplier(counts):
     return shaped
 
 
+def normalize(probs):
+    probs = np.array(probs, dtype=float)
+    total = probs.sum()
+    if total <= 0:
+        return np.ones_like(probs) / len(probs)
+    return probs / total
+
+
 # -----------------------------
 # Single run
 # -----------------------------
@@ -72,22 +83,43 @@ def run_once(skew, noise_sigma):
     active_hist = []
 
     for _ in range(GENERATIONS):
-        probs = counts / counts.sum()
+        # --------------------------------
+        # Formal channel
+        # --------------------------------
+        formal_probs = counts / counts.sum()
 
         # Mean-field concentration
-        probs = probs ** skew
+        formal_probs = formal_probs ** skew
 
         # Progressive fragility below threshold
-        probs = probs * fragility_multiplier(counts)
+        formal_probs = formal_probs * fragility_multiplier(counts)
 
         # Lineage-specific multiplicative noise
         if noise_sigma > 0:
-            noise = np.random.lognormal(mean=0.0, sigma=noise_sigma, size=len(probs))
-            probs = probs * noise
+            noise = np.random.lognormal(mean=0.0, sigma=noise_sigma, size=len(formal_probs))
+            formal_probs = formal_probs * noise
 
-        probs = probs / probs.sum()
+        formal_probs = normalize(formal_probs)
 
-        counts = np.random.multinomial(POP_SIZE, probs)
+        # --------------------------------
+        # EPP / leakage channel
+        # --------------------------------
+        uniform_probs = np.ones(NUM_LINEAGES, dtype=float) / NUM_LINEAGES
+        status_probs = normalize(counts)
+
+        epp_probs = (
+            EPP_STATUS_WEIGHT * status_probs
+            + (1.0 - EPP_STATUS_WEIGHT) * uniform_probs
+        )
+        epp_probs = normalize(epp_probs)
+
+        # --------------------------------
+        # Combined channel
+        # --------------------------------
+        total_probs = (1.0 - EPP_RATE) * formal_probs + EPP_RATE * epp_probs
+        total_probs = normalize(total_probs)
+
+        counts = np.random.multinomial(POP_SIZE, total_probs)
 
         entropy_hist.append(shannon_entropy(counts))
         neff_hist.append(effective_lineages(counts))
@@ -148,13 +180,16 @@ def run_sample_trajectories(skew, noise_sigma, runs):
 def plot_results(results, samples):
     fig, axes = plt.subplots(4, 1, figsize=(12, 12))
 
+    title_suffix = (
+        f"noise={NOISE_SIGMA}, alpha={FRAGILITY_ALPHA}, "
+        f"epp={EPP_RATE}, epp_status={EPP_STATUS_WEIGHT}"
+    )
+
     # Entropy averages
     ax = axes[0]
     for skew, data in results.items():
         ax.plot(data["entropy"], label=f"skew={skew}")
-    ax.set_title(
-        f"Shannon Entropy (avg over {TRIALS} trials, noise_sigma={NOISE_SIGMA}, alpha={FRAGILITY_ALPHA})"
-    )
+    ax.set_title(f"Shannon Entropy (avg over {TRIALS} trials; {title_suffix})")
     ax.set_ylabel("H")
     ax.legend()
 
@@ -182,8 +217,8 @@ def plot_results(results, samples):
     ax.legend(ncol=3, fontsize=8)
 
     plt.tight_layout()
-    plt.savefig("figures/sim_v0_5.png", dpi=150)
-    print("Saved plot to figures/sim_v0_5.png")
+    plt.savefig("figures/sim_v0_6.png", dpi=150)
+    print("Saved plot to figures/sim_v0_6.png")
     plt.show()
 
 

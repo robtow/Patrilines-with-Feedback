@@ -12,19 +12,26 @@ The aim is structural demonstration, not historical reconstruction.
 
 ---
 
-## Current Model (v0.5)
+## Current Model (v0.6)
 
-The current simulation implements:
+The simulation now includes:
 
 - A population divided into lineages
 - Generational reproduction via multinomial sampling
 - A controllable **skew parameter** (filter gain)
 - **Multiplicative lineage-specific noise**
 - **Thresholded fragility**, increasing as lineage size falls
-- Tracking of:
-  - Shannon entropy
-  - Effective number of lineages (e^H)
-  - Active lineage count
+- A **leakage channel (EPP)**:
+  - fraction of births reassigned biologically
+  - mixture of:
+    - random diffusion
+    - status-weighted reproduction
+
+Tracked quantities:
+
+- Shannon entropy
+- Effective number of lineages (e^H)
+- Active lineage count
 
 ---
 
@@ -32,60 +39,72 @@ The current simulation implements:
 
 1. **Continuous filtering alone is sufficient to reduce lineage diversity**
 
-   Even very weak skew (1.02–1.05) produces sustained decline.
+   Even weak skew produces sustained compression.
 
-2. **No catastrophic events are required**
+2. **Thresholded fragility produces clustered collapse**
 
-   Collapse emerges under steady bias alone.
+   Lineages linger near viability, then decline accelerates, producing uneven pruning.
 
-3. **Magnitude of skew required is small**
+3. **Leakage introduces a competing flow**
 
-   A few percent bias is sufficient to produce long-term concentration.
+   The system is no longer purely compressive; diversity can be replenished.
 
-4. **Noise introduces divergence but not structure**
+4. **The effect of leakage depends strongly on its bias**
 
-   Stochastic variation produces trajectory variability, but by itself does not create punctuated behavior.
+   Three regimes are observed:
 
-5. **Thresholded fragility produces clustered collapse**
+   - **Random leakage (diffusive)**  
+     - weak lineages receive inflow  
+     - collapse is arrested  
+     - system stabilizes at moderate diversity  
 
-   When fragility increases below a viability threshold:
-   - lineages linger near threshold
-   - then decline accelerates
-   - extinctions cluster in time
+   - **Mixed leakage**  
+     - diffusion and amplification compete  
+     - system settles into an intermediate steady state  
 
-   This produces **uneven, locally accelerated pruning**.
+   - **Status-weighted leakage (amplifying)**  
+     - informal reproduction reinforces dominant lineages  
+     - collapse accelerates  
+     - diversity declines more rapidly  
+
+   These regimes arise without changing the primary filtering or threshold dynamics; only the bias of the leakage channel is varied.
 
 ---
 
 ## Interpretation
 
-The system now has three layers:
+The system now has three interacting dynamical layers:
 
-- Mean-field filtering → slow compression  
-- Stochastic variation → divergence across runs  
-- Thresholded fragility → local positive feedback  
+- Mean-field filtering → global compression  
+- Thresholded fragility → local positive feedback and clustered collapse  
+- Leakage → cross-lineage transport  
 
-Together these produce:
+The key result is:
 
-> continuous global compression with locally accelerated collapse
+> The long-term behavior of lineage diversity depends not only on formal reproductive constraints, but on the bias structure of informal reproduction.
 
-The result is not a smooth exponential decay, but a system in which:
+More sharply:
 
-> collapse appears episodic without requiring external shocks
+> Informal reproduction is not inherently egalitarian. If it follows the same status signal as formal reproduction, it amplifies inequality. If it is sufficiently uncorrelated, it stabilizes diversity.
+
+---
+
+## NOTE
+
+This model does not represent intention or morality; it is a minimal model of reproductive flow under constrained access, with a secondary leakage channel whose bias determines system behavior.
 
 ---
 
 ## Next Step
 
-Introduce **leakage across lineages** (e.g. extra-pair paternity or social reassignment):
+Decouple the signal used by the leakage channel from formal lineage size:
 
-- allows weak lineages to persist longer
-- redistributes reproductive success across lineages
-- may stabilize or reshape collapse dynamics
+- introduce a second latent trait (e.g. “attractiveness” or local fitness)
+- allow informal reproduction to sample a partially independent signal
 
 Hypothesis:
 
-> Leakage competes with thresholded fragility, producing a balance between persistence and collapse
+> When formal and informal selection signals diverge, the system may exhibit persistent tension between stabilization and concentration.
 
 ---
 
@@ -104,11 +123,14 @@ Exploratory model with working dynamics.
 
 v0.3 — mean-field + noise (smooth compression)  
 v0.4 — threshold (uneven collapse)  
-v0.5 — shaped fragility (clustered pruning)
+v0.5 — shaped fragility (clustered pruning)  
+v0.6 — leakage (EPP) introduces competing flow and three regimes  
 
 The current model demonstrates that:
 
-> punctuated-looking lineage collapse can emerge from internal dynamics without external catastrophic events
+> punctuated-looking lineage collapse can emerge from internal dynamics, and that its persistence or arrest depends on the bias of informal reproductive channels.
+
+The system exhibits three distinct regimes under variation of a single parameter (leakage bias): diffusion, equilibrium, and amplification.
 
 ---
 

@@ -60,4 +60,44 @@ Next:
 - introduce leakage across lineages (EPP / reassignment)
 - examine interaction between leakage and fragility
 
+## 2026-03-20 (model v0.6)
 
+Implemented:
+- EPP / leakage channel
+- mixture of random and status-weighted reproduction
+
+Parameters:
+- EPP_RATE
+- EPP_STATUS_WEIGHT
+
+Experiments:
+
+Case A (random leakage):
+- collapse arrested
+- system stabilizes at moderate diversity (~40–45 lineages)
+
+Case B (mixed leakage):
+- intermediate steady state (~20–30 lineages)
+- balance between diffusion and amplification
+
+Case C (status-weighted leakage):
+- collapse accelerates
+- trajectories converge toward low lineage counts
+
+Result:
+
+- leakage introduces a competing flow into the system
+- behavior depends strongly on bias of leakage channel
+- system exhibits three distinct regimes:
+  diffusion, equilibrium, amplification
+
+Interpretation:
+
+- informal reproduction is not inherently stabilizing
+- if aligned with status, it reinforces inequality
+- if uncorrelated, it preserves diversity
+
+Next:
+
+- decouple informal selection signal from formal lineage size
+- explore dual-signal dynamics
