@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.pyc
+
+# Data (we will add later if needed)
+data/*.csv
+
+# OS
+.DS_Store
+
+# Editor
+*.swp
+
+# Figures (optional; keep or remove depending on taste)
+figures/*.png
+
