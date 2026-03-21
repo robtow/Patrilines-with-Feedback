@@ -101,3 +101,53 @@ Next:
 
 - decouple informal selection signal from formal lineage size
 - explore dual-signal dynamics
+
+## 2026-03-20 (model v0.7)
+
+Implemented:
+- dual-signal model
+- separate informal signal for leakage / EPP
+- tunable correlation between formal lineage success and informal selection
+
+Parameters:
+- SIGNAL_CORRELATION
+- EPP_RATE
+- EPP_STATUS_WEIGHT
+
+Experiments:
+
+Case A (corr = 0.0; informal signal independent):
+- highest entropy of the three runs
+- highest effective lineage count
+- active lineages stabilize at the highest level
+- leakage acts most diffusively
+
+Case B (corr = 0.5; partial alignment):
+- intermediate steady state
+- diversity lower than in the independent case
+- leakage remains partly diffusive, partly reinforcing
+
+Case C (corr = 1.0; full alignment):
+- strongest compression of the three runs
+- lowest long-run active-lineage count
+- informal channel reinforces formal inequality most strongly
+
+Result:
+
+- signal alignment shifts the long-run regime cleanly
+- with leakage mixture held fixed, increasing alignment monotonically reduces diversity
+- the decisive variable is not leakage alone, but whether the informal channel samples the same signal as the formal system
+
+Interpretation:
+
+- the system behaves as a multi-controller structure
+- formal reproduction allocates lineage success through one signal
+- informal reproduction redistributes success through another
+- when the two signals align, concentration increases
+- when they diverge, diversity is preserved more strongly
+
+Next:
+
+- test anti-correlated informal signal
+- consider persistence or drift in the informal signal across generations
+- update essay draft to incorporate v0.7 results

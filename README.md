@@ -12,7 +12,7 @@ The aim is structural demonstration, not historical reconstruction.
 
 ---
 
-## Current Model (v0.6)
+## Current Model (v0.7)
 
 The simulation now includes:
 
@@ -26,6 +26,10 @@ The simulation now includes:
   - mixture of:
     - random diffusion
     - status-weighted reproduction
+- A **dual-signal structure**:
+  - a formal signal governing institutional reproduction
+  - an informal signal governing leakage / EPP
+  - tunable correlation between the two
 
 Tracked quantities:
 
@@ -51,7 +55,7 @@ Tracked quantities:
 
 4. **The effect of leakage depends strongly on its bias**
 
-   Three regimes are observed:
+   Three regimes were observed in v0.6:
 
    - **Random leakage (diffusive)**  
      - weak lineages receive inflow  
@@ -69,42 +73,67 @@ Tracked quantities:
 
    These regimes arise without changing the primary filtering or threshold dynamics; only the bias of the leakage channel is varied.
 
+5. **Signal alignment matters even when leakage mixture is held fixed**
+
+   In v0.7, the leakage channel samples an informal signal that may be aligned with, partially correlated with, or independent of formal lineage success.
+
+   With leakage rate and mixture held constant:
+
+   - **Independent informal signal (`corr = 0.0`)**  
+     - preserves the highest entropy  
+     - preserves the highest effective lineage count  
+     - stabilizes the largest number of active lineages  
+
+   - **Partial alignment (`corr = 0.5`)**  
+     - yields an intermediate steady state  
+     - reduces diversity relative to the independent case  
+
+   - **Full alignment (`corr = 1.0`)**  
+     - produces the strongest compression  
+     - yields the lowest long-run diversity of the three  
+
+   The decisive variable is therefore not leakage alone, but whether the informal channel samples the same signal as the formal system.
+
 ---
 
 ## Interpretation
 
-The system now has three interacting dynamical layers:
+The system now has four interacting dynamical layers:
 
 - Mean-field filtering → global compression  
 - Thresholded fragility → local positive feedback and clustered collapse  
 - Leakage → cross-lineage transport  
+- Signal alignment → determines whether informal reproduction diffuses or reinforces formal inequality  
 
 The key result is:
 
-> The long-term behavior of lineage diversity depends not only on formal reproductive constraints, but on the bias structure of informal reproduction.
+> The long-term behavior of lineage diversity depends not only on formal reproductive constraints, but on the bias structure of informal reproduction and on the degree of alignment between formal and informal signals.
 
 More sharply:
 
-> Informal reproduction is not inherently egalitarian. If it follows the same status signal as formal reproduction, it amplifies inequality. If it is sufficiently uncorrelated, it stabilizes diversity.
+> Informal reproduction is not inherently egalitarian. If it follows the same signal as formal reproduction, it amplifies inequality. If it is sufficiently uncorrelated, it stabilizes diversity.
+
+A second way to put the same point is that the model now behaves as a multi-controller system. One channel allocates reproduction formally; another redistributes it informally. The long-run result depends on how closely the second controller listens to the first.
 
 ---
 
 ## NOTE
 
-This model does not represent intention or morality; it is a minimal model of reproductive flow under constrained access, with a secondary leakage channel whose bias determines system behavior.
+This model does not represent intention or morality; it is a minimal model of reproductive flow under constrained access, with a secondary leakage channel whose bias and signal alignment determine system behavior.
 
 ---
 
 ## Next Step
 
-Decouple the signal used by the leakage channel from formal lineage size:
+Explore stronger separation between formal and informal selection by extending the informal signal further:
 
-- introduce a second latent trait (e.g. “attractiveness” or local fitness)
-- allow informal reproduction to sample a partially independent signal
+- test anti-correlated informal signals
+- allow informal attractiveness to persist or drift across generations
+- examine whether competing signals produce stronger tension, oscillation, or more persistent diversity
 
 Hypothesis:
 
-> When formal and informal selection signals diverge, the system may exhibit persistent tension between stabilization and concentration.
+> When formal and informal selection signals diverge more strongly, the system may exhibit sustained tension rather than simple convergence toward either collapse or equilibrium.
 
 ---
 
@@ -125,12 +154,16 @@ v0.3 — mean-field + noise (smooth compression)
 v0.4 — threshold (uneven collapse)  
 v0.5 — shaped fragility (clustered pruning)  
 v0.6 — leakage (EPP) introduces competing flow and three regimes  
+v0.7 — dual-signal model shows that signal alignment systematically shifts long-run diversity  
 
 The current model demonstrates that:
 
-> punctuated-looking lineage collapse can emerge from internal dynamics, and that its persistence or arrest depends on the bias of informal reproductive channels.
+> punctuated-looking lineage collapse can emerge from internal dynamics, and that its persistence, arrest, or moderation depends on the structure of informal reproductive channels.
 
-The system exhibits three distinct regimes under variation of a single parameter (leakage bias): diffusion, equilibrium, and amplification.
+The system exhibits distinct regimes under variation of a small number of parameters:
+
+- leakage bias: diffusion, equilibrium, amplification  
+- signal alignment: independent, intermediate, aligned
 
 ---
 

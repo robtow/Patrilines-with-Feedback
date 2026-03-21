@@ -14,14 +14,20 @@ SKEW_VALUES = [1.0, 1.02, 1.05, 1.1]
 
 NOISE_SIGMA = 0.2
 
-# Threshold / fragility parameters
+# Threshold / fragility
 MIN_LINEAGE_SIZE = 10
 FRAGILITY_ALPHA = 3.0
 MIN_PENALTY = 0.02
 
-# EPP / leakage parameters
+# EPP / leakage
 EPP_RATE = 0.05
-EPP_STATUS_WEIGHT = 1.0   # 0.0 = pure random, 1.0 = pure status-weighted
+EPP_STATUS_WEIGHT = 0.5
+
+# Dual-signal parameter
+# 1.0 = informal signal aligned with formal success
+# 0.0 = independent
+# negative = anti-correlated
+SIGNAL_CORRELATION = 0.0
 
 SAMPLE_SKEW = 1.05
 SAMPLE_RUNS = 6
@@ -32,6 +38,14 @@ RANDOM_SEED = 42
 # -----------------------------
 # Utilities
 # -----------------------------
+
+def normalize(probs):
+    probs = np.array(probs, dtype=float)
+    total = probs.sum()
+    if total <= 0:
+        return np.ones_like(probs) / len(probs)
+    return probs / total
+
 
 def shannon_entropy(counts):
     counts = np.array(counts, dtype=float)
@@ -48,10 +62,6 @@ def effective_lineages(counts):
 
 
 def fragility_multiplier(counts):
-    """
-    For lineages above threshold, multiplier is 1.
-    Below threshold, multiplier falls progressively toward MIN_PENALTY.
-    """
     counts = np.array(counts, dtype=float)
     ratio = counts / MIN_LINEAGE_SIZE
     ratio = np.clip(ratio, 0.0, 1.0)
@@ -63,12 +73,31 @@ def fragility_multiplier(counts):
     return shaped
 
 
-def normalize(probs):
-    probs = np.array(probs, dtype=float)
-    total = probs.sum()
-    if total <= 0:
-        return np.ones_like(probs) / len(probs)
-    return probs / total
+# -----------------------------
+# Informal signal
+# -----------------------------
+
+def compute_attractiveness(counts):
+    """
+    Construct an informal selection signal that may be aligned with,
+    independent of, or opposed to formal lineage size.
+    """
+    base = normalize(counts)
+
+    # Independent latent variation
+    noise = np.random.lognormal(mean=0.0, sigma=0.5, size=len(counts))
+
+    if SIGNAL_CORRELATION == 0.0:
+        attr = noise
+    elif SIGNAL_CORRELATION > 0.0:
+        attr = (base ** SIGNAL_CORRELATION) * noise
+    else:
+        # Anti-correlation: favor weaker lineages
+        inv = 1.0 / (base + 1e-9)
+        inv = normalize(inv)
+        attr = (inv ** abs(SIGNAL_CORRELATION)) * noise
+
+    return normalize(attr)
 
 
 # -----------------------------
@@ -86,12 +115,12 @@ def run_once(skew, noise_sigma):
         # --------------------------------
         # Formal channel
         # --------------------------------
-        formal_probs = counts / counts.sum()
+        formal_probs = normalize(counts)
 
         # Mean-field concentration
         formal_probs = formal_probs ** skew
 
-        # Progressive fragility below threshold
+        # Fragility below threshold
         formal_probs = formal_probs * fragility_multiplier(counts)
 
         # Lineage-specific multiplicative noise
@@ -102,13 +131,13 @@ def run_once(skew, noise_sigma):
         formal_probs = normalize(formal_probs)
 
         # --------------------------------
-        # EPP / leakage channel
+        # Informal channel
         # --------------------------------
-        uniform_probs = np.ones(NUM_LINEAGES, dtype=float) / NUM_LINEAGES
-        status_probs = normalize(counts)
+        attractiveness = compute_attractiveness(counts)
+        uniform_probs = np.ones(NUM_LINEAGES) / NUM_LINEAGES
 
         epp_probs = (
-            EPP_STATUS_WEIGHT * status_probs
+            EPP_STATUS_WEIGHT * attractiveness
             + (1.0 - EPP_STATUS_WEIGHT) * uniform_probs
         )
         epp_probs = normalize(epp_probs)
@@ -166,9 +195,9 @@ def run_sample_trajectories(skew, noise_sigma, runs):
     for _ in range(runs):
         e, n, a = run_once(skew, noise_sigma)
         samples.append({
-            "entropy": e,
-            "neff": n,
             "active": a,
+            "neff": n,
+            "entropy": e,
         })
     return samples
 
@@ -182,7 +211,7 @@ def plot_results(results, samples):
 
     title_suffix = (
         f"noise={NOISE_SIGMA}, alpha={FRAGILITY_ALPHA}, "
-        f"epp={EPP_RATE}, epp_status={EPP_STATUS_WEIGHT}"
+        f"epp={EPP_RATE}, mix={EPP_STATUS_WEIGHT}, corr={SIGNAL_CORRELATION}"
     )
 
     # Entropy averages
@@ -217,8 +246,8 @@ def plot_results(results, samples):
     ax.legend(ncol=3, fontsize=8)
 
     plt.tight_layout()
-    plt.savefig("figures/sim_v0_6.png", dpi=150)
-    print("Saved plot to figures/sim_v0_6.png")
+    plt.savefig("figures/sim_v0_7.png", dpi=150)
+    print("Saved plot to figures/sim_v0_7.png")
     plt.show()
 
 
