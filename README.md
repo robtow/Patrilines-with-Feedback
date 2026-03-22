@@ -46,7 +46,7 @@ This is the original mean-field line of work. It includes:
   - not hidden mortality
   - not generic “badness”
 
-### 2. Three-basin Daisyworld family
+### 2. Multi-basin Daisyworld family
 
 This is the first topological step beyond the single-basin oversimplification.
 
@@ -55,7 +55,6 @@ It includes:
 - three partially coupled social basins
 - local lineage dynamics within each basin
 - staggered local compression windows
-- slightly different local window strengths
 - weak symmetric cross-basin coupling
 - global observables computed from aggregate lineage counts across basins
 - local basin observables retained for comparison
@@ -91,6 +90,7 @@ In the Daisyworld family, additional basin-level quantities include:
 - basin-specific active lineage counts
 - basin-specific damage
 - basin-specific peak pruning times
+- basin-specific rolling main-pruning times
 - basin-specific window losses
 
 ---
@@ -186,9 +186,9 @@ That is uglier than the more elegant story, and likely closer to history.
 
 ### 9. Topology matters
 
-The three-basin Daisyworld model is the first clear demonstration that the single-basin world was topologically too polite.
+The multi-basin Daisyworld model is the first clear demonstration that the single-basin world was topologically too polite.
 
-Compared with the best single-basin family, the Daisyworld model:
+Compared with the best single-basin family, Daisyworld:
 
 - improves the **global** bounded-compression shape
 - weakens survivor monopoly
@@ -200,13 +200,30 @@ The aggregate result is cleaner:
 - window loss dominates more naturally
 - global pruning timing improves materially
 
-But there is an equally important limit:
+### 10. Daisyworld local timing is still wrong
 
-> The local basins are still pruning too early relative to their own staggered windows.
+Current Daisyworld has now been pushed through two further tests:
 
-So the current Daisyworld result is architectural progress, not yet local calibration success.
+- a harsher **local sustained-pruning metric** based on rolling decline
+- a simple **basin slack gradient** via different basin population sizes
 
-### 10. Current honest result
+Both were useful failures.
+
+They showed:
+- the local-timing problem is not mainly a measurement artifact
+- a simple local-slack gradient is not enough
+- basin pruning still occurs too early relative to local windows
+- aggregate improvement is still coming more from superposition than from cleanly staggered local regime shifts
+
+That is a real result.
+
+The likely missing ingredient is now clearer:
+
+> the local window must alter not just selective pressure, but basin closure itself.
+
+In other words, institutional tightening probably needs to make the local reproductive field more closed, not merely more skewed.
+
+### 11. Current honest result
 
 The current honest claim is:
 
@@ -217,9 +234,9 @@ The current honest claim is:
 - partial hysteresis is plausible
 - topology clearly matters
 - but durable post-window lock-in has not yet been demonstrated
-- and local basin timing in Daisyworld is not yet right
+- and Daisyworld local timing remains wrong
 
-So the current claim is bounded compression plus partial scar, with strong evidence that missing topology was part of the earlier problem.
+So the current claim is bounded compression plus partial scar, with strong evidence that missing topology was part of the earlier problem, but with local basin closure still under-modeled.
 
 ---
 
@@ -244,7 +261,11 @@ More sharply:
 
 > Some of the empirical global bounded-compression shape may indeed be an aggregate effect of coupled basins rather than one synchronized universal regime shift.
 
-That is now a live modeling conclusion, not mere philosophical embroidery.
+And more sharply still:
+
+> The next missing thing in Daisyworld is not more basin breadth difference, but window-driven local closure.
+
+That is now a live modeling conclusion, not rhetorical embroidery.
 
 ---
 
@@ -284,6 +305,7 @@ Version sketch:
 - `v0.10` — damage moved to recovery-channel suppression only; cleaner interpretation, weaker payoff
 - `v0.11` — restrained hybrid; informative, but still not superior to `v0.9`
 - `v0.12` — three-basin Daisyworld; global shape improves, survivor monopoly weakens, local basin timing still too early
+- `v0.13` — local sustained-pruning metric plus basin-slack gradient; shows local timing problem is real and slack alone is insufficient
 
 The current model demonstrates:
 
@@ -294,12 +316,14 @@ The current model demonstrates:
 - partial hysteresis is plausible
 - where hysteresis enters the system matters more than the mere existence of hysteresis
 - topology matters more than the single-basin toy allowed
+- Daisyworld local timing failure is real, not just a metric artifact
 
 The current model does **not yet** demonstrate:
 - strong post-window pruning lag
 - durable post-window lock-in
 - irreversible loss of recoverability
 - clean local staggering of basin pruning relative to local windows
+- window-driven basin closure
 
 ---
 
@@ -308,7 +332,7 @@ The current model does **not yet** demonstrate:
 At present:
 
 - **best single-basin family:** `v0.9`
-- **best architectural advance:** `v0.12`
+- **best architectural advance:** `v0.12` / `v0.13` Daisyworld family
 
 So the repo is currently licensed to say two things at once:
 
@@ -316,7 +340,7 @@ So the repo is currently licensed to say two things at once:
 
 and
 
-> Three-basin Daisyworld suggests that some of the global empirical shape may arise more naturally from coupled local basins than from one universal competitive field.
+> Multi-basin Daisyworld suggests that some of the global empirical shape may arise more naturally from coupled local basins than from one universal competitive field.
 
 Those are compatible claims.
 
@@ -333,7 +357,7 @@ The next question is whether the best future model should:
 
 More sharply:
 
-> Does some of the apparent scar, lag, and survivor-burst topology arise more naturally once lineages inhabit several partially closed reproductive fields rather than one universal bowl?
+> Can a basin’s tightening window alter local closure, not merely local skew, in a way that makes local pruning line up with local timing rather than merely improving the aggregate curve by superposition?
 
 That is the current frontier.
 

@@ -18,7 +18,7 @@ State variables:
 
 Topological structure:
 - single-basin family
-- three-basin Daisyworld family with weak coupling and staggered local windows
+- multi-basin Daisyworld family with weak coupling and staggered local windows
 
 ## Main results so far
 
@@ -31,6 +31,7 @@ Topological structure:
 - hysteresis can be made nontrivial without saturating into nonsense
 - where hysteresis enters the system matters more than the mere existence of hysteresis
 - topology matters more than the single-basin toy admitted
+- Daisyworld local timing failure is real, not just metric noise
 
 ## Current regimes
 
@@ -180,7 +181,8 @@ Relevant checks:
 If basins are present, local and aggregate timing must both be inspected.
 
 Relevant checks:
-- basin peak pruning times
+- basin single-step pruning times
+- basin rolling main-pruning times
 - basin window losses
 - aggregate peak pruning time
 - aggregate lag improvement
@@ -266,36 +268,52 @@ A cleaner recovery-channel interpretation of hysteresis is not strong enough by 
 
 That is uglier than the more elegant story, and likely closer to history.
 
-## What v0.12 Daisyworld shows
+## What v0.12 Daisyworld showed
 
-Three weakly coupled basins immediately improve the global story.
+Three weakly coupled basins immediately improved the global story.
 
 Current Daisyworld pattern:
 - aggregate bounded compression looks less forced
 - pre-window global loss is lower
 - window-dominated global loss is clearer
+- aggregate peak pruning generation moves materially rightward
 - survivor monopoly weakens
-- overall diversity is preserved more naturally
-- global pruning timing improves materially relative to the single-basin family
+- diversity is preserved more naturally
 
-This is already a real result:
-some of what looked like scalar scar in the single-basin machine was really missing topology in disguise.
+This was already enough to show that the single-basin world was topologically too polite.
 
-But the local basin result is not yet right.
+But the local basin story was not yet right:
+- basin-specific peak pruning still occurred too early relative to local windows
+- aggregate lag improvement appeared to come more from superposition than from cleanly staggered local transitions
 
-At present:
-- basin-specific peak pruning still occurs too early relative to each basin’s own local window
-- aggregate lag improvement appears to come more from superposition than from cleanly staggered local transitions
-- rebound remains substantial
+## What v0.13 added
 
-So Daisyworld is currently an architectural success, not yet a local calibration success.
+v0.13 made two disciplined tests:
+
+- a harsher local sustained-pruning metric using rolling decline
+- a basin slack gradient via different local population sizes
+
+These were useful failures.
+
+They showed:
+- the local-timing problem is not mainly a metric artifact
+- a simple slack gradient is not enough
+- basin pruning still occurs too early relative to local windows
+- local worlds remain too eager even when aggregate shape improves
+
+So the next missing ingredient is no longer mysterious.
+
+The likely missing thing is:
+- window-driven local closure
+
+In other words, a basin’s tightening window probably has to alter not just selective pressure, but the openness of the reproductive field itself.
 
 ## Current ranking
 
 At present:
 
 - best single-basin family: v0.9
-- best architectural advance: v0.12
+- best architectural advance: v0.12 / v0.13 Daisyworld family
 
 Those are not contradictory. They are different accomplishments.
 
@@ -308,8 +326,9 @@ The project now supports these claims:
 - partial hysteresis is plausible
 - where hysteresis enters matters
 - single-basin mean-field structure was a major topological oversimplification
-- three-basin Daisyworld makes the global shape more plausible
+- multi-basin Daisyworld makes the global shape more plausible
 - but local basin timing and durable post-window scar remain unsolved
+- and local timing failure is not solved by a better metric or by simple basin slack alone
 
 So the machine now appears to know:
 - how to compress,
@@ -330,6 +349,10 @@ Some of the apparent global bounded-compression shape may arise more naturally f
 
 If so, some of the scalar memory terms in the single-basin model were compensating for missing topology.
 
+Current Daisyworld failures add a third claim:
+
+If basin topology is to do more than smooth the aggregate curve, the local tightening window must alter local closure, not merely local skew.
+
 ## Discipline for the next pass
 
 The next model must satisfy these conditions:
@@ -342,6 +365,7 @@ The next model must satisfy these conditions:
 - rebound versus persistence must be measured explicitly
 - placement of hysteresis in the transfer function must be treated as a first-order modeling choice
 - basin structure must earn its keep by improving local as well as aggregate timing
+- local closure must be tested directly rather than smuggled in as vague extra pressure
 
 Or, more bluntly:
 
