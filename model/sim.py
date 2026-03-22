@@ -8,7 +8,8 @@ import numpy as np
 # Parameters
 # -----------------------------
 
-POP_SIZE = 1000
+NUM_BASINS = 3
+POP_SIZE_PER_BASIN = 1000
 NUM_LINEAGES = 50
 GENERATIONS = 100
 TRIALS = 40
@@ -20,12 +21,13 @@ EPP_RATE = 0.03
 EPP_STATUS_WEIGHT = 0.5
 SIGNAL_CORRELATION = 0.5
 
-# Bounded compression window
-WINDOW_START = 30
-WINDOW_END = 60
+# Bounded compression windows by basin
+# Daisyworld: same machinery, staggered timing, different strength
+WINDOW_STARTS = [24, 34, 44]
+WINDOW_ENDS = [54, 64, 74]
 
 BASE_SKEW = 1.00
-WINDOW_SKEW = 1.07
+WINDOW_SKEWS = [1.08, 1.07, 1.05]
 POST_SKEW = 1.00
 
 # Fragility parameters
@@ -35,25 +37,32 @@ BASE_FRAGILITY_ALPHA = 0.10
 FRAGILITY_GAIN = 0.90
 
 # Damage / hysteresis parameters
-# Damage is scar from exceptional compression, not a tax on ordinary inequality.
 DAMAGE_CONC_THRESHOLD = 0.45
 DAMAGE_ACCUM_GAIN = 0.035
 DAMAGE_DECAY = 0.05
-
-# v0.11 hybrid:
-# damage mainly suppresses re-diffusion, but also adds a small persistence penalty.
-DAMAGE_DIFFUSION_SUPPRESSION = 0.80
 DAMAGE_ALPHA_GAIN = 0.30
 
 # Initial heterogeneity
 INITIAL_HETEROGENEITY_SIGMA = 0.20
 
+# Basin coupling
+# Small symmetric permeability between basins.
+# Rows = destination basin, columns = source basin.
+BASIN_COUPLING = np.array(
+    [
+        [0.96, 0.02, 0.02],
+        [0.02, 0.96, 0.02],
+        [0.02, 0.02, 0.96],
+    ],
+    dtype=float,
+)
+
 # Plotting / runs
-SAMPLE_RUNS = 8
+SAMPLE_RUNS = 6
 RANDOM_SEED = 42
 
-FIGURE_PATH = Path("figures/sim_v0_11.png")
-SUMMARY_PATH = Path("notes/v0_11_summary.json")
+FIGURE_PATH = Path("figures/sim_v0_12.png")
+SUMMARY_PATH = Path("notes/v0_12_summary.json")
 
 
 # -----------------------------
@@ -80,41 +89,6 @@ def shannon_entropy(counts: np.ndarray) -> float:
 
 def effective_lineages(counts: np.ndarray) -> float:
     return float(np.exp(shannon_entropy(counts)))
-
-
-def current_skew(gen: int) -> float:
-    if gen < WINDOW_START:
-        return BASE_SKEW
-    if gen < WINDOW_END:
-        return WINDOW_SKEW
-    return POST_SKEW
-
-
-def fragility_multiplier(counts: np.ndarray, alpha: float) -> np.ndarray:
-    counts = np.array(counts, dtype=float)
-    ratio = counts / MIN_LINEAGE_SIZE
-    ratio = np.clip(ratio, 0.0, 1.0)
-
-    shaped = ratio ** alpha
-    shaped = np.where(counts >= MIN_LINEAGE_SIZE, 1.0, shaped)
-    shaped = np.maximum(shaped, MIN_PENALTY)
-    return shaped
-
-
-def compute_attractiveness(counts: np.ndarray) -> np.ndarray:
-    base = normalize(counts)
-    noise = np.random.lognormal(mean=0.0, sigma=0.5, size=len(counts))
-
-    if SIGNAL_CORRELATION == 0.0:
-        attr = noise
-    elif SIGNAL_CORRELATION > 0.0:
-        attr = (base ** SIGNAL_CORRELATION) * noise
-    else:
-        inv = 1.0 / (base + 1e-9)
-        inv = normalize(inv)
-        attr = (inv ** abs(SIGNAL_CORRELATION)) * noise
-
-    return normalize(attr)
 
 
 def first_difference(series: np.ndarray) -> np.ndarray:
@@ -150,7 +124,6 @@ def top_k_shares(counts: np.ndarray) -> dict:
     total = counts.sum()
     if total <= 0:
         return {"top1": 0.0, "top3": 0.0, "top5": 0.0}
-
     sorted_counts = np.sort(counts)[::-1]
     return {
         "top1": float(sorted_counts[:1].sum() / total),
@@ -167,6 +140,32 @@ def safe_correlation(a: np.ndarray, b: np.ndarray) -> float:
     return float(np.corrcoef(a, b)[0, 1])
 
 
+def fragility_multiplier(counts: np.ndarray, alpha: float) -> np.ndarray:
+    counts = np.array(counts, dtype=float)
+    ratio = counts / MIN_LINEAGE_SIZE
+    ratio = np.clip(ratio, 0.0, 1.0)
+    shaped = ratio ** alpha
+    shaped = np.where(counts >= MIN_LINEAGE_SIZE, 1.0, shaped)
+    shaped = np.maximum(shaped, MIN_PENALTY)
+    return shaped
+
+
+def compute_attractiveness(counts: np.ndarray) -> np.ndarray:
+    base = normalize(counts)
+    noise = np.random.lognormal(mean=0.0, sigma=0.5, size=len(counts))
+
+    if SIGNAL_CORRELATION == 0.0:
+        attr = noise
+    elif SIGNAL_CORRELATION > 0.0:
+        attr = (base ** SIGNAL_CORRELATION) * noise
+    else:
+        inv = 1.0 / (base + 1e-9)
+        inv = normalize(inv)
+        attr = (inv ** abs(SIGNAL_CORRELATION)) * noise
+
+    return normalize(attr)
+
+
 def initial_counts_from_distribution() -> np.ndarray:
     weights = np.random.lognormal(
         mean=0.0,
@@ -174,18 +173,16 @@ def initial_counts_from_distribution() -> np.ndarray:
         size=NUM_LINEAGES,
     )
     weights = normalize(weights)
-    counts = np.random.multinomial(POP_SIZE, weights)
+    counts = np.random.multinomial(POP_SIZE_PER_BASIN, weights)
     return counts
 
 
 def tercile_labels(initial_counts: np.ndarray) -> np.ndarray:
     order = np.argsort(initial_counts)
     labels = np.zeros(len(initial_counts), dtype=int)
-
     n = len(initial_counts)
     t1 = n // 3
     t2 = 2 * n // 3
-
     labels[order[:t1]] = 0
     labels[order[t1:t2]] = 1
     labels[order[t2:]] = 2
@@ -195,17 +192,22 @@ def tercile_labels(initial_counts: np.ndarray) -> np.ndarray:
 def tercile_stats(initial_labels: np.ndarray, final_counts: np.ndarray) -> dict:
     out = {}
     total = final_counts.sum()
-
     for tercile, name in [(0, "lower"), (1, "middle"), (2, "upper")]:
         mask = initial_labels == tercile
         group_counts = final_counts[mask]
         survivors = np.count_nonzero(group_counts)
         group_total = group_counts.sum()
-
         out[f"{name}_survival_rate"] = float(survivors / mask.sum())
         out[f"{name}_final_share"] = float(group_total / total) if total > 0 else 0.0
-
     return out
+
+
+def current_skew(gen: int, basin_idx: int) -> float:
+    if gen < WINDOW_STARTS[basin_idx]:
+        return BASE_SKEW
+    if gen < WINDOW_ENDS[basin_idx]:
+        return WINDOW_SKEWS[basin_idx]
+    return POST_SKEW
 
 
 # -----------------------------
@@ -213,116 +215,153 @@ def tercile_stats(initial_labels: np.ndarray, final_counts: np.ndarray) -> dict:
 # -----------------------------
 
 def run_once() -> dict:
-    counts = initial_counts_from_distribution()
-    initial_counts = counts.copy()
-    initial_labels = tercile_labels(initial_counts)
+    basin_counts = np.stack(
+        [initial_counts_from_distribution() for _ in range(NUM_BASINS)],
+        axis=0,
+    )  # [basin, lineage]
+
+    initial_global_counts = basin_counts.sum(axis=0)
+    initial_labels = tercile_labels(initial_global_counts)
 
     entropy_hist = []
     neff_hist = []
     active_hist = []
     alpha_hist = []
-    skew_hist = []
-    concentration_hist = []
     damage_hist = []
-    epp_random_weight_hist = []
-    epp_status_weight_hist = []
+    global_concentration_hist = []
 
-    damage = 0.0
+    basin_entropy_hist = [[] for _ in range(NUM_BASINS)]
+    basin_neff_hist = [[] for _ in range(NUM_BASINS)]
+    basin_active_hist = [[] for _ in range(NUM_BASINS)]
+    basin_damage_hist = [[] for _ in range(NUM_BASINS)]
+    basin_skew_hist = [[] for _ in range(NUM_BASINS)]
+
+    basin_damage = np.zeros(NUM_BASINS, dtype=float)
 
     for gen in range(GENERATIONS):
-        skew = current_skew(gen)
+        next_counts = np.zeros_like(basin_counts)
 
-        current_neff = effective_lineages(counts)
-        concentration = 1.0 - (current_neff / NUM_LINEAGES)
-        concentration = np.clip(concentration, 0.0, 1.0)
+        # Local basin dynamics first
+        for b in range(NUM_BASINS):
+            counts = basin_counts[b].copy()
+            skew = current_skew(gen, b)
 
-        # Damage is scar from exceptional compression, not a tax on ordinary inequality.
-        excess_concentration = max(0.0, concentration - DAMAGE_CONC_THRESHOLD)
-        damage = damage + DAMAGE_ACCUM_GAIN * excess_concentration - DAMAGE_DECAY * damage
-        damage = float(np.clip(damage, 0.0, 1.0))
+            current_neff = effective_lineages(counts)
+            concentration = 1.0 - (current_neff / NUM_LINEAGES)
+            concentration = float(np.clip(concentration, 0.0, 1.0))
 
-        # v0.11 hybrid:
-        # concentration still drives fragility;
-        # damage adds a modest persistence penalty, not a hammer.
-        effective_alpha = (
+            excess_concentration = max(0.0, concentration - DAMAGE_CONC_THRESHOLD)
+            basin_damage[b] = basin_damage[b] + DAMAGE_ACCUM_GAIN * excess_concentration - DAMAGE_DECAY * basin_damage[b]
+            basin_damage[b] = float(np.clip(basin_damage[b], 0.0, 1.0))
+
+            effective_alpha = (
+                BASE_FRAGILITY_ALPHA
+                + FRAGILITY_GAIN * concentration
+                + DAMAGE_ALPHA_GAIN * basin_damage[b]
+            )
+
+            formal_probs = normalize(counts)
+            formal_probs = formal_probs ** skew
+            formal_probs *= fragility_multiplier(counts, effective_alpha)
+
+            if NOISE_SIGMA > 0:
+                noise = np.random.lognormal(mean=0.0, sigma=NOISE_SIGMA, size=len(formal_probs))
+                formal_probs *= noise
+
+            formal_probs = normalize(formal_probs)
+
+            attractiveness = compute_attractiveness(counts)
+            uniform_probs = np.ones(NUM_LINEAGES, dtype=float) / NUM_LINEAGES
+
+            epp_probs = (
+                EPP_STATUS_WEIGHT * attractiveness
+                + (1.0 - EPP_STATUS_WEIGHT) * uniform_probs
+            )
+            epp_probs = normalize(epp_probs)
+
+            total_probs = (1.0 - EPP_RATE) * formal_probs + EPP_RATE * epp_probs
+            total_probs = normalize(total_probs)
+
+            next_counts[b] = np.random.multinomial(POP_SIZE_PER_BASIN, total_probs)
+
+            basin_entropy_hist[b].append(shannon_entropy(next_counts[b]))
+            basin_neff_hist[b].append(effective_lineages(next_counts[b]))
+            basin_active_hist[b].append(int(np.count_nonzero(next_counts[b])))
+            basin_damage_hist[b].append(float(basin_damage[b]))
+            basin_skew_hist[b].append(float(skew))
+
+        # Weak coupling between basins after local reproduction
+        coupled_counts = np.zeros_like(next_counts, dtype=float)
+        for lineage in range(NUM_LINEAGES):
+            source_vector = next_counts[:, lineage].astype(float)  # per basin
+            transferred = BASIN_COUPLING @ source_vector
+            coupled_counts[:, lineage] = transferred
+
+        # Re-discretize each basin back to fixed population
+        basin_counts = np.zeros_like(next_counts)
+        for b in range(NUM_BASINS):
+            probs = normalize(coupled_counts[b])
+            basin_counts[b] = np.random.multinomial(POP_SIZE_PER_BASIN, probs)
+
+        global_counts = basin_counts.sum(axis=0)
+
+        entropy_hist.append(shannon_entropy(global_counts))
+        neff_hist.append(effective_lineages(global_counts))
+        active_hist.append(int(np.count_nonzero(global_counts)))
+        alpha_hist.append(float(np.mean([
             BASE_FRAGILITY_ALPHA
-            + FRAGILITY_GAIN * concentration
-            + DAMAGE_ALPHA_GAIN * damage
-        )
+            + FRAGILITY_GAIN * np.clip(1.0 - (effective_lineages(basin_counts[b]) / NUM_LINEAGES), 0.0, 1.0)
+            + DAMAGE_ALPHA_GAIN * basin_damage[b]
+            for b in range(NUM_BASINS)
+        ])))
+        damage_hist.append(float(np.mean(basin_damage)))
+        global_concentration_hist.append(float(np.clip(1.0 - (effective_lineages(global_counts) / NUM_LINEAGES), 0.0, 1.0)))
 
-        # Formal channel
-        formal_probs = normalize(counts)
-        formal_probs = formal_probs ** skew
-        formal_probs *= fragility_multiplier(counts, effective_alpha)
-
-        if NOISE_SIGMA > 0:
-            noise = np.random.lognormal(mean=0.0, sigma=NOISE_SIGMA, size=len(formal_probs))
-            formal_probs *= noise
-
-        formal_probs = normalize(formal_probs)
-
-        # Informal channel
-        attractiveness = compute_attractiveness(counts)
-        uniform_probs = np.ones(NUM_LINEAGES, dtype=float) / NUM_LINEAGES
-
-        # Damage suppresses diffusion / random redistribution.
-        effective_random_weight = (1.0 - EPP_STATUS_WEIGHT) * (
-            1.0 - DAMAGE_DIFFUSION_SUPPRESSION * damage
-        )
-        effective_random_weight = float(np.clip(effective_random_weight, 0.0, 1.0))
-        effective_status_weight = 1.0 - effective_random_weight
-
-        epp_probs = (
-            effective_status_weight * attractiveness
-            + effective_random_weight * uniform_probs
-        )
-        epp_probs = normalize(epp_probs)
-
-        # Combined channel
-        total_probs = (1.0 - EPP_RATE) * formal_probs + EPP_RATE * epp_probs
-        total_probs = normalize(total_probs)
-
-        counts = np.random.multinomial(POP_SIZE, total_probs)
-
-        entropy_hist.append(shannon_entropy(counts))
-        neff_hist.append(effective_lineages(counts))
-        active_hist.append(int(np.count_nonzero(counts)))
-        alpha_hist.append(float(effective_alpha))
-        skew_hist.append(float(skew))
-        concentration_hist.append(float(concentration))
-        damage_hist.append(float(damage))
-        epp_random_weight_hist.append(float(effective_random_weight))
-        epp_status_weight_hist.append(float(effective_status_weight))
-
-    final_counts = counts.copy()
+    final_global_counts = basin_counts.sum(axis=0)
 
     entropy = np.array(entropy_hist)
     neff = np.array(neff_hist)
     active = np.array(active_hist)
     alpha = np.array(alpha_hist)
-    skew = np.array(skew_hist)
-    concentration = np.array(concentration_hist)
-    damage_series = np.array(damage_hist)
-    epp_random_weight_series = np.array(epp_random_weight_hist)
-    epp_status_weight_series = np.array(epp_status_weight_hist)
+    damage = np.array(damage_hist)
+    global_concentration = np.array(global_concentration_hist)
+
+    basin_entropy = [np.array(x) for x in basin_entropy_hist]
+    basin_neff = [np.array(x) for x in basin_neff_hist]
+    basin_active = [np.array(x) for x in basin_active_hist]
+    basin_damage_series = [np.array(x) for x in basin_damage_hist]
+    basin_skew = [np.array(x) for x in basin_skew_hist]
 
     d_neff = first_difference(neff)
     d_active = first_difference(active)
     dd_neff = second_difference(neff)
 
-    shares = top_k_shares(final_counts)
-    terciles = tercile_stats(initial_labels, final_counts)
+    shares = top_k_shares(final_global_counts)
+    terciles = tercile_stats(initial_labels, final_global_counts)
 
-    window_midpoint = (WINDOW_START + WINDOW_END) / 2.0
+    global_window_midpoint = float(np.mean([(s + e) / 2.0 for s, e in zip(WINDOW_STARTS, WINDOW_ENDS)]))
     peak_pruning_gen = int(np.argmin(d_neff))
-    pruning_lag = float(peak_pruning_gen - window_midpoint)
+    pruning_lag = float(peak_pruning_gen - global_window_midpoint)
 
     total_entropy_loss = float(entropy[0] - entropy[-1])
-    pre_entropy_loss = float(entropy[0] - entropy[WINDOW_START])
-    window_entropy_loss = float(entropy[WINDOW_START] - entropy[WINDOW_END - 1])
-    post_entropy_loss = float(entropy[WINDOW_END - 1] - entropy[-1])
 
-    initial_shares = top_k_shares(initial_counts)
+    pre_cut = min(WINDOW_STARTS)
+    post_cut = max(WINDOW_ENDS) - 1
+
+    pre_entropy_loss = float(entropy[0] - entropy[pre_cut])
+    window_entropy_loss = float(entropy[pre_cut] - entropy[post_cut])
+    post_entropy_loss = float(entropy[post_cut] - entropy[-1])
+
+    initial_shares = top_k_shares(initial_global_counts)
+
+    basin_peak_pruning = []
+    basin_entropy_loss_window = []
+    for b in range(NUM_BASINS):
+        b_d_neff = first_difference(basin_neff[b])
+        basin_peak_pruning.append(int(np.argmin(b_d_neff)))
+        b_pre = WINDOW_STARTS[b]
+        b_post = WINDOW_ENDS[b] - 1
+        basin_entropy_loss_window.append(float(basin_entropy[b][b_pre] - basin_entropy[b][b_post]))
 
     summary = {
         "top1": shares["top1"],
@@ -330,9 +369,9 @@ def run_once() -> dict:
         "top5": shares["top5"],
         "initial_top1": initial_shares["top1"],
         "initial_top3": initial_shares["top3"],
-        "initial_gini": gini(initial_counts),
-        "final_gini": gini(final_counts),
-        "initial_final_corr": safe_correlation(initial_counts, final_counts),
+        "initial_gini": gini(initial_global_counts),
+        "final_gini": gini(final_global_counts),
+        "initial_final_corr": safe_correlation(initial_global_counts, final_global_counts),
         "peak_pruning_gen": peak_pruning_gen,
         "pruning_lag": pruning_lag,
         "max_curvature_gen": int(np.argmax(np.abs(dd_neff))),
@@ -342,30 +381,33 @@ def run_once() -> dict:
         "entropy_loss_pre": pre_entropy_loss,
         "entropy_loss_window": window_entropy_loss,
         "entropy_loss_post": post_entropy_loss,
-        "initial_mean_count": float(initial_counts.mean()),
-        "initial_std_count": float(initial_counts.std()),
-        "final_damage": float(damage_series[-1]),
-        "max_damage": float(damage_series.max()),
-        "final_epp_random_weight": float(epp_random_weight_series[-1]),
-        "min_epp_random_weight": float(epp_random_weight_series.min()),
+        "initial_mean_count": float(initial_global_counts.mean()),
+        "initial_std_count": float(initial_global_counts.std()),
+        "final_damage": float(damage[-1]),
+        "max_damage": float(damage.max()),
+        "basin0_peak_pruning": float(basin_peak_pruning[0]),
+        "basin1_peak_pruning": float(basin_peak_pruning[1]),
+        "basin2_peak_pruning": float(basin_peak_pruning[2]),
+        "basin0_window_loss": float(basin_entropy_loss_window[0]),
+        "basin1_window_loss": float(basin_entropy_loss_window[1]),
+        "basin2_window_loss": float(basin_entropy_loss_window[2]),
         **terciles,
     }
 
     return {
-        "initial_counts": initial_counts,
-        "final_counts": final_counts,
-        "initial_labels": initial_labels,
         "entropy": entropy,
         "neff": neff,
         "active": active,
         "alpha": alpha,
-        "skew": skew,
-        "concentration": concentration,
-        "damage": damage_series,
-        "epp_random_weight": epp_random_weight_series,
-        "epp_status_weight": epp_status_weight_series,
+        "damage": damage,
+        "global_concentration": global_concentration,
         "d_neff": d_neff,
         "d_active": d_active,
+        "basin_entropy": basin_entropy,
+        "basin_neff": basin_neff,
+        "basin_active": basin_active,
+        "basin_damage": basin_damage_series,
+        "basin_skew": basin_skew,
         "summary": summary,
     }
 
@@ -397,6 +439,18 @@ def run_experiments() -> dict:
         for key in summaries[0].keys()
     }
 
+    basin_entropy_mean = []
+    basin_neff_mean = []
+    basin_active_mean = []
+    basin_damage_mean = []
+    basin_skew_mean = []
+    for b in range(NUM_BASINS):
+        basin_entropy_mean.append(np.stack([r["basin_entropy"][b] for r in runs]).mean(axis=0))
+        basin_neff_mean.append(np.stack([r["basin_neff"][b] for r in runs]).mean(axis=0))
+        basin_active_mean.append(np.stack([r["basin_active"][b] for r in runs]).mean(axis=0))
+        basin_damage_mean.append(np.stack([r["basin_damage"][b] for r in runs]).mean(axis=0))
+        basin_skew_mean.append(np.stack([r["basin_skew"][b] for r in runs]).mean(axis=0))
+
     return {
         "runs": runs,
         "entropy_mean": stack("entropy").mean(axis=0),
@@ -406,12 +460,15 @@ def run_experiments() -> dict:
         "active_mean": stack("active").mean(axis=0),
         "active_std": stack("active").std(axis=0),
         "alpha_mean": stack("alpha").mean(axis=0),
-        "skew_mean": stack("skew").mean(axis=0),
-        "concentration_mean": stack("concentration").mean(axis=0),
         "damage_mean": stack("damage").mean(axis=0),
-        "epp_random_weight_mean": stack("epp_random_weight").mean(axis=0),
+        "global_concentration_mean": stack("global_concentration").mean(axis=0),
         "d_neff_mean": stack("d_neff").mean(axis=0),
         "d_active_mean": stack("d_active").mean(axis=0),
+        "basin_entropy_mean": basin_entropy_mean,
+        "basin_neff_mean": basin_neff_mean,
+        "basin_active_mean": basin_active_mean,
+        "basin_damage_mean": basin_damage_mean,
+        "basin_skew_mean": basin_skew_mean,
         "summary_stats": summary_stats,
     }
 
@@ -427,7 +484,8 @@ def run_sample_trajectories(n_runs: int) -> list[dict]:
 def save_summary_json(results: dict) -> None:
     payload = {
         "params": {
-            "POP_SIZE": POP_SIZE,
+            "NUM_BASINS": NUM_BASINS,
+            "POP_SIZE_PER_BASIN": POP_SIZE_PER_BASIN,
             "NUM_LINEAGES": NUM_LINEAGES,
             "GENERATIONS": GENERATIONS,
             "TRIALS": TRIALS,
@@ -435,10 +493,10 @@ def save_summary_json(results: dict) -> None:
             "EPP_RATE": EPP_RATE,
             "EPP_STATUS_WEIGHT": EPP_STATUS_WEIGHT,
             "SIGNAL_CORRELATION": SIGNAL_CORRELATION,
-            "WINDOW_START": WINDOW_START,
-            "WINDOW_END": WINDOW_END,
+            "WINDOW_STARTS": WINDOW_STARTS,
+            "WINDOW_ENDS": WINDOW_ENDS,
             "BASE_SKEW": BASE_SKEW,
-            "WINDOW_SKEW": WINDOW_SKEW,
+            "WINDOW_SKEWS": WINDOW_SKEWS,
             "POST_SKEW": POST_SKEW,
             "MIN_LINEAGE_SIZE": MIN_LINEAGE_SIZE,
             "MIN_PENALTY": MIN_PENALTY,
@@ -447,9 +505,9 @@ def save_summary_json(results: dict) -> None:
             "DAMAGE_CONC_THRESHOLD": DAMAGE_CONC_THRESHOLD,
             "DAMAGE_ACCUM_GAIN": DAMAGE_ACCUM_GAIN,
             "DAMAGE_DECAY": DAMAGE_DECAY,
-            "DAMAGE_DIFFUSION_SUPPRESSION": DAMAGE_DIFFUSION_SUPPRESSION,
             "DAMAGE_ALPHA_GAIN": DAMAGE_ALPHA_GAIN,
             "INITIAL_HETEROGENEITY_SIGMA": INITIAL_HETEROGENEITY_SIGMA,
+            "BASIN_COUPLING": BASIN_COUPLING.tolist(),
         },
         "summary_stats": results["summary_stats"],
     }
@@ -464,80 +522,76 @@ def plot_results(results: dict, samples: list[dict]) -> None:
 
     fig, axes = plt.subplots(6, 1, figsize=(12, 18))
 
-    title_suffix = (
-        f"lineages={NUM_LINEAGES}, window=({WINDOW_START},{WINDOW_END}), "
-        f"epp={EPP_RATE}, mix={EPP_STATUS_WEIGHT}, corr={SIGNAL_CORRELATION}"
-    )
-
-    # 1. Entropy
+    # 1. Global entropy
     ax = axes[0]
-    ax.plot(gens, results["entropy_mean"], label="Entropy")
+    ax.plot(gens, results["entropy_mean"], label="Global entropy")
     ax.fill_between(
         gens,
         results["entropy_mean"] - results["entropy_std"],
         results["entropy_mean"] + results["entropy_std"],
         alpha=0.2,
     )
-    ax.axvspan(WINDOW_START, WINDOW_END, alpha=0.12)
-    ax.set_title(f"Entropy over time ({title_suffix})")
+    for s, e in zip(WINDOW_STARTS, WINDOW_ENDS):
+        ax.axvspan(s, e, alpha=0.06)
+    ax.set_title("v0.12 Daisyworld: global entropy")
     ax.set_ylabel("H")
 
-    # 2. Effective lineages
+    # 2. Basin effective lineages
     ax = axes[1]
-    ax.plot(gens, results["neff_mean"], label="N_eff")
-    ax.fill_between(
-        gens,
-        results["neff_mean"] - results["neff_std"],
-        results["neff_mean"] + results["neff_std"],
-        alpha=0.2,
-    )
-    ax.axvspan(WINDOW_START, WINDOW_END, alpha=0.12)
-    ax.set_title("Effective lineages")
+    for b in range(NUM_BASINS):
+        ax.plot(gens, results["basin_neff_mean"][b], label=f"basin {b}")
+        ax.axvspan(WINDOW_STARTS[b], WINDOW_ENDS[b], alpha=0.06)
+    ax.set_title("Basin effective lineages")
     ax.set_ylabel("N_eff")
+    ax.legend()
 
-    # 3. Active lineages
+    # 3. Global active lineages
     ax = axes[2]
-    ax.plot(gens, results["active_mean"], label="Active")
+    ax.plot(gens, results["active_mean"], label="Global active")
     ax.fill_between(
         gens,
         results["active_mean"] - results["active_std"],
         results["active_mean"] + results["active_std"],
         alpha=0.2,
     )
-    ax.axvspan(WINDOW_START, WINDOW_END, alpha=0.12)
-    ax.set_title("Active lineages")
+    for s, e in zip(WINDOW_STARTS, WINDOW_ENDS):
+        ax.axvspan(s, e, alpha=0.06)
+    ax.set_title("Global active lineages")
     ax.set_ylabel("Count")
 
-    # 4. Derivatives
+    # 4. Global derivatives
     ax = axes[3]
     ax.plot(gens, results["d_neff_mean"], label="dN_eff/dt")
     ax.plot(gens, results["d_active_mean"], label="dActive/dt")
-    ax.axvspan(WINDOW_START, WINDOW_END, alpha=0.12)
-    ax.set_title("Pruning derivatives")
+    for s, e in zip(WINDOW_STARTS, WINDOW_ENDS):
+        ax.axvspan(s, e, alpha=0.06)
+    ax.set_title("Global pruning derivatives")
     ax.set_ylabel("Δ per gen")
     ax.legend()
 
     # 5. State variables
     ax = axes[4]
-    ax.plot(gens, results["alpha_mean"], label="Fragility alpha")
-    ax.plot(gens, results["concentration_mean"], label="Concentration")
-    ax.plot(gens, results["damage_mean"], label="Damage")
-    ax.plot(gens, results["epp_random_weight_mean"], label="EPP random weight")
-    ax.plot(gens, results["skew_mean"], label="Skew")
-    ax.axvspan(WINDOW_START, WINDOW_END, alpha=0.12)
+    ax.plot(gens, results["alpha_mean"], label="Mean fragility alpha")
+    ax.plot(gens, results["damage_mean"], label="Mean damage")
+    ax.plot(gens, results["global_concentration_mean"], label="Global concentration")
+    for b in range(NUM_BASINS):
+        ax.plot(gens, results["basin_skew_mean"][b], linestyle="--", label=f"skew b{b}")
+    for s, e in zip(WINDOW_STARTS, WINDOW_ENDS):
+        ax.axvspan(s, e, alpha=0.06)
     ax.set_title("System state")
     ax.set_ylabel("Value")
-    ax.legend()
+    ax.legend(ncol=3, fontsize=8)
 
-    # 6. Sample trajectories
+    # 6. Sample trajectories (global active)
     ax = axes[5]
     for i, s in enumerate(samples):
         ax.plot(gens, s["active"], label=f"run {i+1}")
-    ax.axvspan(WINDOW_START, WINDOW_END, alpha=0.12)
-    ax.set_title("Sample active-lineage trajectories")
+    for s, e in zip(WINDOW_STARTS, WINDOW_ENDS):
+        ax.axvspan(s, e, alpha=0.06)
+    ax.set_title("Sample global active-lineage trajectories")
     ax.set_xlabel("Generation")
     ax.set_ylabel("Active")
-    ax.legend(ncol=4, fontsize=8)
+    ax.legend(ncol=3, fontsize=8)
 
     plt.tight_layout()
     plt.savefig(FIGURE_PATH, dpi=150)
@@ -572,8 +626,12 @@ def plot_results(results: dict, samples: list[dict]) -> None:
         "entropy_loss_post",
         "final_damage",
         "max_damage",
-        "final_epp_random_weight",
-        "min_epp_random_weight",
+        "basin0_peak_pruning",
+        "basin1_peak_pruning",
+        "basin2_peak_pruning",
+        "basin0_window_loss",
+        "basin1_window_loss",
+        "basin2_window_loss",
     ]:
         val = ss[key]
         print(

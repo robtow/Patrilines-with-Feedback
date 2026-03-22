@@ -81,18 +81,35 @@ So a damage term, if added, should alter:
 
 It should not simply deepen the fall by brute force.
 
-A further restriction is now clear from experiment:
+Further restrictions now clear from experiment:
 - damage should accumulate only under exceptional compression, not ordinary inequality
 - damage must remain an interior state variable, not saturate trivially
-
-A still sharper restriction is now also clear:
 - placement of damage in the transfer function matters
 - recovery-channel suppression alone is too weak at present scale
-- the best current result requires damage to affect persistence more directly
+- the best current single-basin result requires damage to affect persistence more directly
 
 So the current system is allowed to say that reduced recoverability is real, but not that it lives only in the loosest informal channel.
 
-## What the current hysteresis result permits
+## Basin rail
+
+The single-basin world is now known to be a topological oversimplification.
+
+A basin here is not necessarily geography. It is a partially bounded reproductive field. It may be regional, ritual, status-based, linguistic, or otherwise social.
+
+If multiple basins are introduced, they must remain indecently simple at first:
+- small number of basins
+- weak coupling
+- minimal differences in local rules
+- no decorative anthropological sprawl
+
+The point is not “more realism.” The point is to ask whether some global empirical shape is really the aggregate of staggered local regimes.
+
+Further restrictions now clear from experiment:
+- three basins are enough for a first serious Daisyworld
+- aggregate improvement alone is not sufficient
+- basin structure must improve local timing, not merely smooth global curves by superposition
+
+## What the current results permit
 
 The current thresholded damage law is admissible because it no longer behaves like a hidden death switch.
 
@@ -102,11 +119,17 @@ At present it supports the weaker but honest claim:
 - but durable post-window damage has not yet been demonstrated
 
 It also supports a sharper methodological claim:
-- `v0.9` is currently the best behavioral family
+- `v0.9` is currently the best single-basin behavioral family
 - `v0.10` is the useful negative control
 - `v0.11` is informative but not superior
+- `v0.12` is the first real topological advance, but local basin timing remains too early
 
-So the model is currently licensed to speak of partial hysteresis, not triumphant irreversible lock-in.
+So the model is currently licensed to speak of:
+- partial hysteresis,
+- real topological improvement,
+- and incomplete local calibration.
+
+It is not yet licensed to claim triumphant irreversible lock-in.
 
 ## Modeling discipline
 
@@ -120,4 +143,4 @@ The right use of the literature here is narrow and hard-headed:
 
 A blunter version, for my own future reference:
 
-> The literature does not hand me a Bronze Age fragility constant. It does, however, tell me that leakage should probably be low but real, that male-line filtering institutions commonly co-occur, and that the empirical target is not merely collapse but a particular topology: bounded compression plus survivor burst. It also tells me not to begin the machine with everyone already hanging over the cliff and then pretend later brittleness is profound. And if I add a damage term, it had better mean reduced recoverability and institutional overfitting, not stage fog. At present the machine is allowed to claim partial scar, not grand irreversible ruin. The present uglier lesson is that hysteresis seems to matter most when it makes persistence itself stickier, not merely when it weakens informal recovery at the margin. That is enough to keep the model from wandering off into just-so theater.
+> The literature does not hand me a Bronze Age fragility constant. It does, however, tell me that leakage should probably be low but real, that male-line filtering institutions commonly co-occur, and that the empirical target is not merely collapse but a particular topology: bounded compression plus survivor burst. It also tells me not to begin the machine with everyone already hanging over the cliff and then pretend later brittleness is profound. And if I add a damage term, it had better mean reduced recoverability and institutional overfitting, not stage fog. At present the machine is allowed to claim partial scar, not grand irreversible ruin. The present uglier lesson is that hysteresis seems to matter most when it makes persistence itself stickier, not merely when it weakens informal recovery at the margin. The present topological lesson is that some of the global shape was probably missing archipelago rather than missing scalar scar. That is enough to keep the model from wandering off into just-so theater.

@@ -16,6 +16,10 @@ State variables:
 - concentration from effective lineage diversity
 - thresholded damage / hysteresis as reduced recoverability under exceptional compression
 
+Topological structure:
+- single-basin family
+- three-basin Daisyworld family with weak coupling and staggered local windows
+
 ## Main results so far
 
 - weak continuous filtering is sufficient for compression
@@ -26,6 +30,7 @@ State variables:
 - bounded compression can now be made the dominant event rather than an afterthought
 - hysteresis can be made nontrivial without saturating into nonsense
 - where hysteresis enters the system matters more than the mere existence of hysteresis
+- topology matters more than the single-basin toy admitted
 
 ## Current regimes
 
@@ -89,6 +94,7 @@ In blunt terms:
 - does pruning lag the forcing window?
 - does bounded tightening convert mild stochastic differences into durable stratification?
 - does reduced diversity become harder to escape once the system has narrowed?
+- and is the observed global shape really one regime, or the aggregate of several coupled basins?
 
 That is the real test.
 
@@ -104,6 +110,7 @@ The model is now being asked not just for lower diversity, but for a topology:
 - plateau versus continued collapse
 - change in the derivative of inequality
 - persistence or rebound after the compression interval
+- local versus global timing in coupled basins
 
 The field already gives shape classes:
 - bounded paternal compression
@@ -168,6 +175,17 @@ Relevant checks:
 - whether damage actually delays pruning rather than merely deepening concentration
 - whether the placement of damage in the transfer function changes behavior materially
 
+### 6. Basin behavior
+
+If basins are present, local and aggregate timing must both be inspected.
+
+Relevant checks:
+- basin peak pruning times
+- basin window losses
+- aggregate peak pruning time
+- aggregate lag improvement
+- whether the aggregate improvement comes from true local staggering or merely superposition of similar local declines
+
 ## Damage term: what it is allowed to mean
 
 If a damage term enters the model, it is not to mean generic badness, hidden mortality, or melodramatic injury. It must mean something narrower and more defensible.
@@ -215,7 +233,7 @@ That is a nasty little loop, and it sounds more like history than either noble s
 
 ### v0.9
 
-Thresholded damage acting directly on persistence / fragility gives the best current behavioral result.
+Thresholded damage acting directly on persistence / fragility gives the best current single-basin behavioral result.
 
 It no longer saturates to 1.0 in every run. Damage remains an interior state variable, bounded compression remains window-dominant, survivor concentration remains strong, and the post-window result is best described as partial scar rather than durable lock-in.
 
@@ -234,29 +252,71 @@ A restrained hybrid, with damage acting mostly on re-diffusion and only modestly
 
 This improved on v0.10 but still did not beat v0.9.
 
-## Current ranking
+## Current single-basin ranking
 
 At present:
 
-- v0.9 is the best current model family
+- v0.9 is the best current single-basin model family
 - v0.11 is informative but inferior
 - v0.10 is the useful negative control
 
 So the current unpleasant lesson is:
 
-A cleaner recovery-channel interpretation of hysteresis is not strong enough by itself. The best current match requires damage to affect persistence more directly.
+A cleaner recovery-channel interpretation of hysteresis is not strong enough by itself. The best current single-basin match requires damage to affect persistence more directly.
 
 That is uglier than the more elegant story, and likely closer to history.
 
+## What v0.12 Daisyworld shows
+
+Three weakly coupled basins immediately improve the global story.
+
+Current Daisyworld pattern:
+- aggregate bounded compression looks less forced
+- pre-window global loss is lower
+- window-dominated global loss is clearer
+- survivor monopoly weakens
+- overall diversity is preserved more naturally
+- global pruning timing improves materially relative to the single-basin family
+
+This is already a real result:
+some of what looked like scalar scar in the single-basin machine was really missing topology in disguise.
+
+But the local basin result is not yet right.
+
+At present:
+- basin-specific peak pruning still occurs too early relative to each basin’s own local window
+- aggregate lag improvement appears to come more from superposition than from cleanly staggered local transitions
+- rebound remains substantial
+
+So Daisyworld is currently an architectural success, not yet a local calibration success.
+
+## Current ranking
+
+At present:
+
+- best single-basin family: v0.9
+- best architectural advance: v0.12
+
+Those are not contradictory. They are different accomplishments.
+
 ## Current honest result
 
-The current system produces:
-- bounded compression
-- concentrated survivors
-- some hysteresis
-- but still substantial post-window re-diffusion
+The project now supports these claims:
 
-So the machine now appears to know how to compress and leave a scar, but not yet how to stay seriously hurt.
+- bounded compression can arise from internal coupled filtering
+- survivor concentration can remain strong without requiring the usual bloody male bloodbath
+- partial hysteresis is plausible
+- where hysteresis enters matters
+- single-basin mean-field structure was a major topological oversimplification
+- three-basin Daisyworld makes the global shape more plausible
+- but local basin timing and durable post-window scar remain unsolved
+
+So the machine now appears to know:
+- how to compress,
+- how to leave a scar,
+- and how topology changes the global appearance,
+
+but not yet how to make local staggered tightening line up cleanly with local pruning while also staying hurt afterward.
 
 ## Working hypothesis
 
@@ -264,11 +324,11 @@ The strongest form of the current hypothesis is this:
 
 A bounded interval of cultural tightening does not merely reduce diversity while active. It changes the transfer function by which male lines persist. As entropy falls, redundancy falls. As redundancy falls, fragility rises. Once the system is sufficiently compressed, the same perturbations become more dangerous, and mild initial variation is more easily converted into durable pruning and survivor concentration.
 
-If a damage term is required, it should not deepen the fall by magic. It should reduce recoverability and make the compressed state harder to escape.
+Current experiments add a second strong claim:
 
-Current experiments suggest that this reduced recoverability is not expressed only through weaker informal re-diffusion. It also seems to make marginality itself stickier.
+Some of the apparent global bounded-compression shape may arise more naturally from several partially closed reproductive basins than from one universal competitive field.
 
-That is a stronger and uglier result, and sounds more like history.
+If so, some of the scalar memory terms in the single-basin model were compensating for missing topology.
 
 ## Discipline for the next pass
 
@@ -281,6 +341,7 @@ The next model must satisfy these conditions:
 - damage must remain an informative state variable rather than saturating trivially
 - rebound versus persistence must be measured explicitly
 - placement of hysteresis in the transfer function must be treated as a first-order modeling choice
+- basin structure must earn its keep by improving local as well as aggregate timing
 
 Or, more bluntly:
 
@@ -289,3 +350,4 @@ Do not confuse amplification with creation.
 Do not confuse one vivid run with a regime.
 Do not confuse a decorative memory term with a real scar.
 Do not confuse elegance of interpretation with behavioral adequacy.
+Do not let topology become another excuse for post hoc curve matching.
