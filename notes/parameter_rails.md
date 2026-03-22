@@ -110,7 +110,9 @@ Further restrictions now clear from experiment:
 - basin structure must improve local timing, not merely smooth global curves by superposition
 - a better local metric is not enough by itself
 - a simple basin slack gradient is not enough by itself
-- the next honest move is to test window-driven local closure
+- window-driven local closure helps but is not enough by itself
+- window-gated local marginality helps more
+- the next honest move is likely stronger pre-window resilience for the later basin
 
 ## What the current results permit
 
@@ -127,12 +129,14 @@ It also supports a sharper methodological claim:
 - `v0.11` is informative but not superior
 - `v0.12` is the first real topological advance
 - `v0.13` shows that Daisyworld local timing failure is real and not cured by metric correction or slack alone
+- `v0.14` shows that window-driven local closure is part of the answer
+- `v0.15` shows that window-gated local marginality is also part of the answer
 
 So the model is currently licensed to speak of:
 - partial hysteresis,
 - real topological improvement,
 - incomplete local calibration,
-- and the likely need for window-driven basin closure.
+- and the likely need for stronger late-basin pre-window buffering.
 
 It is not yet licensed to claim triumphant irreversible lock-in.
 
@@ -148,4 +152,4 @@ The right use of the literature here is narrow and hard-headed:
 
 A blunter version, for my own future reference:
 
-> The literature does not hand me a Bronze Age fragility constant. It does, however, tell me that leakage should probably be low but real, that male-line filtering institutions commonly co-occur, and that the empirical target is not merely collapse but a particular topology: bounded compression plus survivor burst. It also tells me not to begin the machine with everyone already hanging over the cliff and then pretend later brittleness is profound. And if I add a damage term, it had better mean reduced recoverability and institutional overfitting, not stage fog. At present the machine is allowed to claim partial scar, not grand irreversible ruin. The present uglier lesson is that hysteresis seems to matter most when it makes persistence itself stickier, not merely when it weakens informal recovery at the margin. The present topological lesson is that some of the global shape was probably missing archipelago rather than missing scalar scar. The present Daisyworld lesson is that local timing will not be saved by prettier metrics or by simple slack gradients; the basin window must likely alter local closure itself. That is enough to keep the model from wandering off into just-so theater.
+> The literature does not hand me a Bronze Age fragility constant. It does, however, tell me that leakage should probably be low but real, that male-line filtering institutions commonly co-occur, and that the empirical target is not merely collapse but a particular topology: bounded compression plus survivor burst. It also tells me not to begin the machine with everyone already hanging over the cliff and then pretend later brittleness is profound. And if I add a damage term, it had better mean reduced recoverability and institutional overfitting, not stage fog. At present the machine is allowed to claim partial scar, not grand irreversible ruin. The present uglier lesson is that hysteresis seems to matter most when it makes persistence itself stickier, not merely when it weakens informal recovery at the margin. The present topological lesson is that some of the global shape was probably missing archipelago rather than missing scalar scar. The present Daisyworld lesson is that local timing is beginning to respond to closure plus marginality, but the later basin still needs more pre-window protection. That is enough to keep the model from wandering off into just-so theater.

@@ -35,6 +35,9 @@ MIN_PENALTY = 0.10
 BASE_FRAGILITY_ALPHA = 0.10
 FRAGILITY_GAIN = 0.90
 
+# v0.15: window-gated local fragility gain
+WINDOW_FRAGILITY_MULTIPLIERS = [1.45, 1.30, 1.20]
+
 # Damage / hysteresis parameters
 DAMAGE_CONC_THRESHOLD = 0.45
 DAMAGE_ACCUM_GAIN = 0.035
@@ -45,9 +48,9 @@ DAMAGE_ALPHA_GAIN = 0.30
 INITIAL_HETEROGENEITY_SIGMA = 0.20
 
 # Basin coupling
-# Small symmetric permeability between basins.
+# Baseline weak symmetric permeability between basins.
 # Rows = destination basin, columns = source basin.
-BASIN_COUPLING = np.array(
+BASE_BASIN_COUPLING = np.array(
     [
         [0.96, 0.02, 0.02],
         [0.02, 0.96, 0.02],
@@ -56,6 +59,9 @@ BASIN_COUPLING = np.array(
     dtype=float,
 )
 
+# v0.14+ : window-driven local closure
+WINDOW_CLOSED_DIAG = 0.99
+
 # Local timing metric
 ROLLING_PRUNING_WINDOW = 5
 
@@ -63,8 +69,8 @@ ROLLING_PRUNING_WINDOW = 5
 SAMPLE_RUNS = 6
 RANDOM_SEED = 42
 
-FIGURE_PATH = Path("figures/sim_v0_13.png")
-SUMMARY_PATH = Path("notes/v0_13_summary.json")
+FIGURE_PATH = Path("figures/sim_v0_15.png")
+SUMMARY_PATH = Path("notes/v0_15_summary.json")
 
 
 # -----------------------------
@@ -204,12 +210,22 @@ def tercile_stats(initial_labels: np.ndarray, final_counts: np.ndarray) -> dict:
     return out
 
 
+def in_window(gen: int, basin_idx: int) -> bool:
+    return WINDOW_STARTS[basin_idx] <= gen < WINDOW_ENDS[basin_idx]
+
+
 def current_skew(gen: int, basin_idx: int) -> float:
     if gen < WINDOW_STARTS[basin_idx]:
         return BASE_SKEW
     if gen < WINDOW_ENDS[basin_idx]:
         return WINDOW_SKEWS[basin_idx]
     return POST_SKEW
+
+
+def current_fragility_gain(gen: int, basin_idx: int) -> float:
+    if in_window(gen, basin_idx):
+        return FRAGILITY_GAIN * WINDOW_FRAGILITY_MULTIPLIERS[basin_idx]
+    return FRAGILITY_GAIN
 
 
 def rolling_main_pruning_time(series: np.ndarray, window: int = ROLLING_PRUNING_WINDOW) -> int:
@@ -219,12 +235,28 @@ def rolling_main_pruning_time(series: np.ndarray, window: int = ROLLING_PRUNING_
     if len(series) <= window:
         return int(np.argmin(first_difference(series)))
 
-    diffs = np.diff(series)  # len = n-1
+    diffs = np.diff(series)
     rolling = np.convolve(diffs, np.ones(window), mode="valid")
     idx = int(np.argmin(rolling))
-    # idx corresponds to diffs[idx : idx+window]
     midpoint = idx + window // 2 + 1
     return int(midpoint)
+
+
+def coupling_for_generation(gen: int) -> np.ndarray:
+    """
+    Window-driven basin closure.
+    If a basin is in its own tightening window, increase its self-retention.
+    """
+    mat = BASE_BASIN_COUPLING.copy()
+
+    for b in range(NUM_BASINS):
+        if in_window(gen, b):
+            off_diag_sum = 1.0 - WINDOW_CLOSED_DIAG
+            share = off_diag_sum / (NUM_BASINS - 1)
+            mat[b, :] = share
+            mat[b, b] = WINDOW_CLOSED_DIAG
+
+    return mat
 
 
 # -----------------------------
@@ -235,7 +267,7 @@ def run_once() -> dict:
     basin_counts = np.stack(
         [initial_counts_from_distribution(pop) for pop in POP_SIZE_PER_BASIN],
         axis=0,
-    )  # [basin, lineage]
+    )
 
     initial_global_counts = basin_counts.sum(axis=0)
     initial_labels = tercile_labels(initial_global_counts)
@@ -246,22 +278,24 @@ def run_once() -> dict:
     alpha_hist = []
     damage_hist = []
     global_concentration_hist = []
+    mean_diag_coupling_hist = []
 
     basin_entropy_hist = [[] for _ in range(NUM_BASINS)]
     basin_neff_hist = [[] for _ in range(NUM_BASINS)]
     basin_active_hist = [[] for _ in range(NUM_BASINS)]
     basin_damage_hist = [[] for _ in range(NUM_BASINS)]
     basin_skew_hist = [[] for _ in range(NUM_BASINS)]
+    basin_fragility_gain_hist = [[] for _ in range(NUM_BASINS)]
 
     basin_damage = np.zeros(NUM_BASINS, dtype=float)
 
     for gen in range(GENERATIONS):
         next_counts = np.zeros_like(basin_counts)
 
-        # Local basin dynamics first
         for b in range(NUM_BASINS):
             counts = basin_counts[b].copy()
             skew = current_skew(gen, b)
+            local_fragility_gain = current_fragility_gain(gen, b)
 
             current_neff = effective_lineages(counts)
             concentration = 1.0 - (current_neff / NUM_LINEAGES)
@@ -273,7 +307,7 @@ def run_once() -> dict:
 
             effective_alpha = (
                 BASE_FRAGILITY_ALPHA
-                + FRAGILITY_GAIN * concentration
+                + local_fragility_gain * concentration
                 + DAMAGE_ALPHA_GAIN * basin_damage[b]
             )
 
@@ -306,15 +340,15 @@ def run_once() -> dict:
             basin_active_hist[b].append(int(np.count_nonzero(next_counts[b])))
             basin_damage_hist[b].append(float(basin_damage[b]))
             basin_skew_hist[b].append(float(skew))
+            basin_fragility_gain_hist[b].append(float(local_fragility_gain))
 
-        # Weak coupling between basins after local reproduction
+        coupling = coupling_for_generation(gen)
         coupled_counts = np.zeros_like(next_counts, dtype=float)
         for lineage in range(NUM_LINEAGES):
             source_vector = next_counts[:, lineage].astype(float)
-            transferred = BASIN_COUPLING @ source_vector
+            transferred = coupling @ source_vector
             coupled_counts[:, lineage] = transferred
 
-        # Re-discretize each basin back to fixed local population
         basin_counts = np.zeros_like(next_counts)
         for b in range(NUM_BASINS):
             probs = normalize(coupled_counts[b])
@@ -327,7 +361,7 @@ def run_once() -> dict:
         active_hist.append(int(np.count_nonzero(global_counts)))
         alpha_hist.append(float(np.mean([
             BASE_FRAGILITY_ALPHA
-            + FRAGILITY_GAIN * np.clip(1.0 - (effective_lineages(basin_counts[b]) / NUM_LINEAGES), 0.0, 1.0)
+            + current_fragility_gain(gen, b) * np.clip(1.0 - (effective_lineages(basin_counts[b]) / NUM_LINEAGES), 0.0, 1.0)
             + DAMAGE_ALPHA_GAIN * basin_damage[b]
             for b in range(NUM_BASINS)
         ])))
@@ -335,6 +369,7 @@ def run_once() -> dict:
         global_concentration_hist.append(
             float(np.clip(1.0 - (effective_lineages(global_counts) / NUM_LINEAGES), 0.0, 1.0))
         )
+        mean_diag_coupling_hist.append(float(np.mean(np.diag(coupling))))
 
     final_global_counts = basin_counts.sum(axis=0)
 
@@ -344,12 +379,14 @@ def run_once() -> dict:
     alpha = np.array(alpha_hist)
     damage = np.array(damage_hist)
     global_concentration = np.array(global_concentration_hist)
+    mean_diag_coupling = np.array(mean_diag_coupling_hist)
 
     basin_entropy = [np.array(x) for x in basin_entropy_hist]
     basin_neff = [np.array(x) for x in basin_neff_hist]
     basin_active = [np.array(x) for x in basin_active_hist]
     basin_damage_series = [np.array(x) for x in basin_damage_hist]
     basin_skew = [np.array(x) for x in basin_skew_hist]
+    basin_fragility_gain = [np.array(x) for x in basin_fragility_gain_hist]
 
     d_neff = first_difference(neff)
     d_active = first_difference(active)
@@ -407,6 +444,8 @@ def run_once() -> dict:
         "initial_std_count": float(initial_global_counts.std()),
         "final_damage": float(damage[-1]),
         "max_damage": float(damage.max()),
+        "mean_diag_coupling_final": float(mean_diag_coupling[-1]),
+        "mean_diag_coupling_max": float(mean_diag_coupling.max()),
         "basin0_single_step_pruning": float(basin_single_step_pruning[0]),
         "basin1_single_step_pruning": float(basin_single_step_pruning[1]),
         "basin2_single_step_pruning": float(basin_single_step_pruning[2]),
@@ -426,6 +465,7 @@ def run_once() -> dict:
         "alpha": alpha,
         "damage": damage,
         "global_concentration": global_concentration,
+        "mean_diag_coupling": mean_diag_coupling,
         "d_neff": d_neff,
         "d_active": d_active,
         "basin_entropy": basin_entropy,
@@ -433,6 +473,7 @@ def run_once() -> dict:
         "basin_active": basin_active,
         "basin_damage": basin_damage_series,
         "basin_skew": basin_skew,
+        "basin_fragility_gain": basin_fragility_gain,
         "summary": summary,
     }
 
@@ -469,12 +510,14 @@ def run_experiments() -> dict:
     basin_active_mean = []
     basin_damage_mean = []
     basin_skew_mean = []
+    basin_fragility_gain_mean = []
     for b in range(NUM_BASINS):
         basin_entropy_mean.append(np.stack([r["basin_entropy"][b] for r in runs]).mean(axis=0))
         basin_neff_mean.append(np.stack([r["basin_neff"][b] for r in runs]).mean(axis=0))
         basin_active_mean.append(np.stack([r["basin_active"][b] for r in runs]).mean(axis=0))
         basin_damage_mean.append(np.stack([r["basin_damage"][b] for r in runs]).mean(axis=0))
         basin_skew_mean.append(np.stack([r["basin_skew"][b] for r in runs]).mean(axis=0))
+        basin_fragility_gain_mean.append(np.stack([r["basin_fragility_gain"][b] for r in runs]).mean(axis=0))
 
     return {
         "runs": runs,
@@ -487,6 +530,7 @@ def run_experiments() -> dict:
         "alpha_mean": stack("alpha").mean(axis=0),
         "damage_mean": stack("damage").mean(axis=0),
         "global_concentration_mean": stack("global_concentration").mean(axis=0),
+        "mean_diag_coupling_mean": stack("mean_diag_coupling").mean(axis=0),
         "d_neff_mean": stack("d_neff").mean(axis=0),
         "d_active_mean": stack("d_active").mean(axis=0),
         "basin_entropy_mean": basin_entropy_mean,
@@ -494,6 +538,7 @@ def run_experiments() -> dict:
         "basin_active_mean": basin_active_mean,
         "basin_damage_mean": basin_damage_mean,
         "basin_skew_mean": basin_skew_mean,
+        "basin_fragility_gain_mean": basin_fragility_gain_mean,
         "summary_stats": summary_stats,
     }
 
@@ -527,12 +572,14 @@ def save_summary_json(results: dict) -> None:
             "MIN_PENALTY": MIN_PENALTY,
             "BASE_FRAGILITY_ALPHA": BASE_FRAGILITY_ALPHA,
             "FRAGILITY_GAIN": FRAGILITY_GAIN,
+            "WINDOW_FRAGILITY_MULTIPLIERS": WINDOW_FRAGILITY_MULTIPLIERS,
             "DAMAGE_CONC_THRESHOLD": DAMAGE_CONC_THRESHOLD,
             "DAMAGE_ACCUM_GAIN": DAMAGE_ACCUM_GAIN,
             "DAMAGE_DECAY": DAMAGE_DECAY,
             "DAMAGE_ALPHA_GAIN": DAMAGE_ALPHA_GAIN,
             "INITIAL_HETEROGENEITY_SIGMA": INITIAL_HETEROGENEITY_SIGMA,
-            "BASIN_COUPLING": BASIN_COUPLING.tolist(),
+            "BASE_BASIN_COUPLING": BASE_BASIN_COUPLING.tolist(),
+            "WINDOW_CLOSED_DIAG": WINDOW_CLOSED_DIAG,
             "ROLLING_PRUNING_WINDOW": ROLLING_PRUNING_WINDOW,
         },
         "summary_stats": results["summary_stats"],
@@ -548,7 +595,6 @@ def plot_results(results: dict, samples: list[dict]) -> None:
 
     fig, axes = plt.subplots(6, 1, figsize=(12, 18))
 
-    # 1. Global entropy
     ax = axes[0]
     ax.plot(gens, results["entropy_mean"], label="Global entropy")
     ax.fill_between(
@@ -559,10 +605,9 @@ def plot_results(results: dict, samples: list[dict]) -> None:
     )
     for s, e in zip(WINDOW_STARTS, WINDOW_ENDS):
         ax.axvspan(s, e, alpha=0.06)
-    ax.set_title("v0.13 Daisyworld: global entropy")
+    ax.set_title("v0.15 Daisyworld: global entropy")
     ax.set_ylabel("H")
 
-    # 2. Basin effective lineages
     ax = axes[1]
     for b in range(NUM_BASINS):
         ax.plot(gens, results["basin_neff_mean"][b], label=f"basin {b}")
@@ -571,7 +616,6 @@ def plot_results(results: dict, samples: list[dict]) -> None:
     ax.set_ylabel("N_eff")
     ax.legend()
 
-    # 3. Global active lineages
     ax = axes[2]
     ax.plot(gens, results["active_mean"], label="Global active")
     ax.fill_between(
@@ -585,7 +629,6 @@ def plot_results(results: dict, samples: list[dict]) -> None:
     ax.set_title("Global active lineages")
     ax.set_ylabel("Count")
 
-    # 4. Global derivatives
     ax = axes[3]
     ax.plot(gens, results["d_neff_mean"], label="dN_eff/dt")
     ax.plot(gens, results["d_active_mean"], label="dActive/dt")
@@ -595,11 +638,11 @@ def plot_results(results: dict, samples: list[dict]) -> None:
     ax.set_ylabel("Δ per gen")
     ax.legend()
 
-    # 5. State variables
     ax = axes[4]
     ax.plot(gens, results["alpha_mean"], label="Mean fragility alpha")
     ax.plot(gens, results["damage_mean"], label="Mean damage")
     ax.plot(gens, results["global_concentration_mean"], label="Global concentration")
+    ax.plot(gens, results["mean_diag_coupling_mean"], label="Mean diag coupling")
     for b in range(NUM_BASINS):
         ax.plot(gens, results["basin_skew_mean"][b], linestyle="--", label=f"skew b{b}")
     for s, e in zip(WINDOW_STARTS, WINDOW_ENDS):
@@ -608,7 +651,6 @@ def plot_results(results: dict, samples: list[dict]) -> None:
     ax.set_ylabel("Value")
     ax.legend(ncol=3, fontsize=8)
 
-    # 6. Sample trajectories (global active)
     ax = axes[5]
     for i, s in enumerate(samples):
         ax.plot(gens, s["active"], label=f"run {i+1}")
@@ -652,6 +694,8 @@ def plot_results(results: dict, samples: list[dict]) -> None:
         "entropy_loss_post",
         "final_damage",
         "max_damage",
+        "mean_diag_coupling_final",
+        "mean_diag_coupling_max",
         "basin0_single_step_pruning",
         "basin1_single_step_pruning",
         "basin2_single_step_pruning",
@@ -678,3 +722,4 @@ if __name__ == "__main__":
     samples = run_sample_trajectories(SAMPLE_RUNS)
     save_summary_json(results)
     plot_results(results, samples)
+

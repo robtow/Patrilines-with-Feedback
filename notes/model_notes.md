@@ -31,7 +31,7 @@ Topological structure:
 - hysteresis can be made nontrivial without saturating into nonsense
 - where hysteresis enters the system matters more than the mere existence of hysteresis
 - topology matters more than the single-basin toy admitted
-- Daisyworld local timing failure is real, not just metric noise
+- Daisyworld local timing failure is real, but closure plus local marginality now begin to separate local timing
 
 ## Current regimes
 
@@ -268,52 +268,69 @@ A cleaner recovery-channel interpretation of hysteresis is not strong enough by 
 
 That is uglier than the more elegant story, and likely closer to history.
 
-## What v0.12 Daisyworld showed
+## What v0.12-v0.15 Daisyworld now show
 
-Three weakly coupled basins immediately improved the global story.
+### v0.12
 
-Current Daisyworld pattern:
-- aggregate bounded compression looks less forced
-- pre-window global loss is lower
-- window-dominated global loss is clearer
-- aggregate peak pruning generation moves materially rightward
-- survivor monopoly weakens
-- diversity is preserved more naturally
+Three weakly coupled basins immediately improved the global story:
+- aggregate bounded compression looked less forced
+- pre-window global loss was lower
+- window-dominated global loss was clearer
+- aggregate peak pruning generation moved materially rightward
+- survivor monopoly weakened
+- diversity was preserved more naturally
 
-This was already enough to show that the single-basin world was topologically too polite.
+This was enough to show that the single-basin world was topologically too polite.
 
-But the local basin story was not yet right:
+But the local basin story was not right:
 - basin-specific peak pruning still occurred too early relative to local windows
 - aggregate lag improvement appeared to come more from superposition than from cleanly staggered local transitions
 
-## What v0.13 added
+### v0.13
 
-v0.13 made two disciplined tests:
-
+v0.13 added:
 - a harsher local sustained-pruning metric using rolling decline
 - a basin slack gradient via different local population sizes
 
 These were useful failures.
 
 They showed:
-- the local-timing problem is not mainly a metric artifact
-- a simple slack gradient is not enough
-- basin pruning still occurs too early relative to local windows
-- local worlds remain too eager even when aggregate shape improves
+- the local-timing problem was not mainly a metric artifact
+- simple basin slack was not enough
+- basin pruning still occurred too early relative to local windows
 
-So the next missing ingredient is no longer mysterious.
+### v0.14
 
-The likely missing thing is:
+v0.14 added:
 - window-driven local closure
 
-In other words, a basin’s tightening window probably has to alter not just selective pressure, but the openness of the reproductive field itself.
+This was the first Daisyworld version to show a modest honest hint of local timing separation.
+It helped, but not enough.
+
+### v0.15
+
+v0.15 added:
+- window-gated local marginality / fragility gain
+
+This is the first Daisyworld version where the sustained local pruning metric starts to separate in the right direction, at least partially.
+
+Current reading:
+- local closure helps
+- local marginality helps more
+- basin 1 now moves later in a real way
+- basin 2 still erodes too early
+- the late basin still lacks enough pre-window buffering
+
+So the next missing ingredient is becoming clearer:
+- not merely more in-window harshness
+- but stronger protection of late-basin breadth before its own window arrives
 
 ## Current ranking
 
 At present:
 
 - best single-basin family: v0.9
-- best architectural advance: v0.12 / v0.13 Daisyworld family
+- best architectural advance: v0.15 Daisyworld family
 
 Those are not contradictory. They are different accomplishments.
 
@@ -327,15 +344,17 @@ The project now supports these claims:
 - where hysteresis enters matters
 - single-basin mean-field structure was a major topological oversimplification
 - multi-basin Daisyworld makes the global shape more plausible
+- local closure plus local marginality begin to produce local timing separation
 - but local basin timing and durable post-window scar remain unsolved
-- and local timing failure is not solved by a better metric or by simple basin slack alone
+- and the late basin still lacks enough pre-window buffering
 
 So the machine now appears to know:
 - how to compress,
 - how to leave a scar,
-- and how topology changes the global appearance,
+- how topology changes the global appearance,
+- and how local closure plus local marginality start to matter,
 
-but not yet how to make local staggered tightening line up cleanly with local pruning while also staying hurt afterward.
+but not yet how to keep the late basin broad until its own tightening interval arrives.
 
 ## Working hypothesis
 
@@ -349,9 +368,13 @@ Some of the apparent global bounded-compression shape may arise more naturally f
 
 If so, some of the scalar memory terms in the single-basin model were compensating for missing topology.
 
-Current Daisyworld failures add a third claim:
+Current Daisyworld experiments add a third claim:
 
-If basin topology is to do more than smooth the aggregate curve, the local tightening window must alter local closure, not merely local skew.
+If basin topology is to do more than smooth the aggregate curve, the local tightening window must alter both local closure and local marginality.
+
+Current v0.15 results add a fourth claim:
+
+Even that is not yet enough. The later basin likely needs stronger pre-window resilience if truly staggered local timing is to emerge.
 
 ## Discipline for the next pass
 
@@ -366,6 +389,7 @@ The next model must satisfy these conditions:
 - placement of hysteresis in the transfer function must be treated as a first-order modeling choice
 - basin structure must earn its keep by improving local as well as aggregate timing
 - local closure must be tested directly rather than smuggled in as vague extra pressure
+- late-basin pre-window resilience must now be treated as a first-order issue
 
 Or, more bluntly:
 

@@ -1,4 +1,4 @@
-# v0.12-v0.13 Daisyworld Notes
+# v0.12-v0.15 Daisyworld Notes
 
 ## Purpose
 
@@ -6,14 +6,14 @@ v0.12 was the first architectural move beyond the single-basin mean-field world.
 
 The goal was not “more realism” in the vulgar sense. The goal was to ask whether some of the observed global bounded-compression shape arises more naturally once lineages inhabit several partially closed reproductive fields rather than one universal bowl.
 
-v0.13 then tested whether the remaining Daisyworld local-timing problem was merely a metric issue or a missing local-slack issue.
+v0.13, v0.14, and v0.15 then tested what the basins were still missing locally.
 
 ## Architecture
 
 Three basins.
 Weak symmetric coupling.
 Staggered local tightening windows.
-Shared internal machinery.
+Shared internal machinery, then progressively less shared local closure conditions.
 
 These basins are not necessarily geographic. They are partially bounded social reproductive fields.
 
@@ -53,21 +53,56 @@ This was a disciplined attempt to separate three possibilities:
 - too-similar basins
 - genuinely wrong local dynamics
 
-## What v0.13 showed
+### v0.13 result
 
-The result was a useful failure.
+A useful failure.
 
 It showed:
-- the local-timing problem is not mainly a measurement artifact
+- the local-timing problem was not mainly a measurement artifact
 - the rolling main-pruning metric did not rescue the local story
-- a simple local slack gradient is not enough
-- basin pruning still occurs too early relative to local windows
+- a simple local slack gradient was not enough
+- basin pruning still occurred too early relative to local windows
 
-So the next missing ingredient is clearer than before.
+## What v0.14 tested
+
+v0.14 added:
+- window-driven local closure
+
+Meaning:
+- when a basin’s tightening window turned on, that basin became more locally closed
+
+### v0.14 result
+
+This was the first Daisyworld version to show a modest honest hint of local timing separation.
+
+So closure was part of the missing ingredient, but not the whole thing.
+
+## What v0.15 tested
+
+v0.15 added:
+- window-gated local marginality / fragility gain
+
+Meaning:
+- a basin’s tightening interval now altered not only skew and closure, but also how harshly local marginality was treated
+
+### v0.15 result
+
+This is the first Daisyworld version where the sustained local pruning metric starts to separate in the right direction, at least partially.
+
+Current reading:
+- local closure helps
+- local marginality helps more
+- basin 1 now moves later in a real way
+- basin 2 still erodes too early
+
+So the current problem is no longer “nothing local matters.”
+
+The problem is now sharper:
+- the later basin still lacks enough pre-window buffering
 
 ## Current interpretation
 
-Daisyworld now supports three claims:
+Daisyworld now supports four claims:
 
 1. The archipelago matters.
    Some global bounded-compression shape is more naturally produced in several partially closed basins than in one universal bowl.
@@ -75,38 +110,24 @@ Daisyworld now supports three claims:
 2. Topology alone is not enough.
    Aggregate improvement can still arise from superposition without honest local timing.
 
-3. The likely next missing ingredient is window-driven local closure.
-   A basin’s tightening interval probably has to alter not just local skew, but the openness of the reproductive field itself.
+3. Local closure matters.
+   A basin’s tightening interval must alter not just skew, but openness.
 
-That is the next honest modeling move.
+4. Local marginality matters.
+   A basin’s tightening interval must also change how harshly near-edge lineages are treated.
+
+What remains missing is:
+- stronger protection of late-basin breadth before its own tightening interval arrives
 
 ## Immediate lesson
 
 The machine is still too much of a globe and not enough of an archipelago.
 
 v0.12 was the first honest correction of that.
-v0.13 showed that local timing will not be saved by prettier metrics or simple slack gradients.
+v0.13 showed that local timing would not be saved by prettier metrics or simple slack gradients.
+v0.14 showed that local closure is part of the answer.
+v0.15 showed that local marginality is also part of the answer.
 
-The next serious Daisyworld step is therefore not more breadth difference.
-A
-A
-A
-A
-A
-A
-A
-A
-A
-A
-A
-A
-A
-A
-A
-A
-A
-A
-A
-A
-A
-It is local closure.
+The next serious Daisyworld step is therefore:
+- not more generic in-window harshness
+- but more honest pre-window buffering for the later basin
