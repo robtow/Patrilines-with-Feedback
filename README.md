@@ -10,163 +10,247 @@ This repository explores whether the observed reduction in Y-chromosome lineage 
 
 The aim is structural demonstration, not historical reconstruction.
 
+More specifically, the project asks whether bounded intervals of tighter cultural and institutional filtering can compress male-line diversity, and whether that compression can alter later system behavior by reducing recoverability.
+
 ---
 
-## Current Model (v0.7)
+## Current Model
 
 The simulation now includes:
 
-- A population divided into lineages
-- Generational reproduction via multinomial sampling
-- A controllable **skew parameter** (filter gain)
-- **Multiplicative lineage-specific noise**
-- **Thresholded fragility**, increasing as lineage size falls
-- A **leakage channel (EPP)**:
+- a population divided into lineages
+- generational reproduction via multinomial sampling
+- a controllable skew parameter
+- multiplicative lineage-specific noise
+- thresholded fragility as lineage size falls
+- a leakage channel (EPP):
   - fraction of births reassigned biologically
   - mixture of:
     - random diffusion
     - status-weighted reproduction
-- A **dual-signal structure**:
+- a dual-signal structure:
   - a formal signal governing institutional reproduction
   - an informal signal governing leakage / EPP
   - tunable correlation between the two
+- a bounded compression window:
+  - interpreted as a bounded interval of tighter memetic / institutional coherence
+- mild heterogeneous initial lineage sizes:
+  - broad initial ecology
+  - visible but not yet fate-like variation
+- initial-position hygiene:
+  - lineages grouped by lower / middle / upper initial terciles
+  - later survival and share tracked by starting position
+- a thresholded damage / hysteresis term:
+  - interpreted as reduced recoverability under exceptional compression
+  - not hidden mortality
+  - not generic “badness”
 
-Tracked quantities:
+Tracked quantities include:
 
 - Shannon entropy
-- Effective number of lineages (e^H)
-- Active lineage count
+- effective number of lineages (`e^H`)
+- active lineage count
+- pruning derivatives
+- pre-window / window / post-window entropy loss
+- peak pruning generation
+- pruning lag relative to window midpoint
+- survivor concentration:
+  - top-1 share
+  - top-3 share
+  - top-5 share
+- initial / final correlation
+- initial and final Gini
+- survival rate by initial tercile
+- final share by initial tercile
+- damage statistics
 
 ---
 
-## Observations
+## What the model now shows
 
-1. **Continuous filtering alone is sufficient to reduce lineage diversity**
+### 1. Continuous filtering is sufficient for compression
 
-   Even weak skew produces sustained compression.
+Even weak skew produces sustained lineage compression.
 
-2. **Thresholded fragility produces clustered collapse**
+### 2. Thresholded fragility produces clustered pruning
 
-   Lineages linger near viability, then decline accelerates, producing uneven pruning.
+Lineages can linger near viability, then decline accelerates, producing uneven pruning rather than a perfectly smooth fade.
 
-3. **Leakage introduces a competing flow**
+### 3. Leakage introduces a competing flow
 
-   The system is no longer purely compressive; diversity can be replenished.
+The system is no longer purely compressive; diversity can be partially replenished.
 
-4. **The effect of leakage depends strongly on its bias**
+### 4. Leakage bias matters
 
-   Three regimes were observed in v0.6:
+Three regimes emerged in earlier versions:
 
-   - **Random leakage (diffusive)**  
-     - weak lineages receive inflow  
-     - collapse is arrested  
-     - system stabilizes at moderate diversity  
+- **random leakage**
+  - weak lineages receive inflow
+  - collapse is softened
+  - diversity is better preserved
 
-   - **Mixed leakage**  
-     - diffusion and amplification compete  
-     - system settles into an intermediate steady state  
+- **mixed leakage**
+  - diffusion and amplification compete
+  - the system settles into an intermediate regime
 
-   - **Status-weighted leakage (amplifying)**  
-     - informal reproduction reinforces dominant lineages  
-     - collapse accelerates  
-     - diversity declines more rapidly  
+- **status-weighted leakage**
+  - informal reproduction reinforces dominant lineages
+  - collapse accelerates
+  - diversity declines more rapidly
 
-   These regimes arise without changing the primary filtering or threshold dynamics; only the bias of the leakage channel is varied.
+### 5. Signal alignment matters even when leakage mixture is held fixed
 
-5. **Signal alignment matters even when leakage mixture is held fixed**
+With leakage rate and mixture held constant:
 
-   In v0.7, the leakage channel samples an informal signal that may be aligned with, partially correlated with, or independent of formal lineage success.
+- **independent informal signal (`corr = 0.0`)**
+  - preserves the highest entropy
+  - preserves the highest effective lineage count
+  - stabilizes the largest number of active lineages
 
-   With leakage rate and mixture held constant:
+- **partial alignment (`corr = 0.5`)**
+  - yields an intermediate steady state
+  - reduces diversity relative to the independent case
 
-   - **Independent informal signal (`corr = 0.0`)**  
-     - preserves the highest entropy  
-     - preserves the highest effective lineage count  
-     - stabilizes the largest number of active lineages  
+- **full alignment (`corr = 1.0`)**
+  - produces the strongest compression
+  - yields the lowest long-run diversity of the three
 
-   - **Partial alignment (`corr = 0.5`)**  
-     - yields an intermediate steady state  
-     - reduces diversity relative to the independent case  
+The decisive variable is therefore not leakage alone, but whether the informal channel samples the same signal as the formal system.
 
-   - **Full alignment (`corr = 1.0`)**  
-     - produces the strongest compression  
-     - yields the lowest long-run diversity of the three  
+### 6. Bounded compression can be made the dominant event
 
-   The decisive variable is therefore not leakage alone, but whether the informal channel samples the same signal as the formal system.
+Later versions moved beyond simple continuous thinning and asked whether a bounded interval of tighter institutional filtering could become the main compression event.
+
+With healthier initialization and milder baseline fragility, the model now produces runs in which the bounded window, rather than generation-zero pathology, does most of the work.
+
+### 7. Initial-condition hygiene matters
+
+Earlier versions exposed a failure mode in which the system began life already too close to the fragility threshold. That produced misleading early collapse.
+
+This has now been corrected by:
+- broader initial ecology
+- mild heterogeneous starts
+- explicit tracking of whether later inequality is merely inherited from the initial draw
+
+The result is a cleaner distinction between ordinary variation and later structural amplification.
+
+### 8. Hysteresis is plausible, but currently partial
+
+The current thresholded damage law is the first hysteresis version that behaves like a real state variable rather than theatrical fog.
+
+It is interpreted as reduced recoverability under exceptional compression:
+- accumulated rigidity
+- reduced re-diffusion
+- slower reopening of lineage opportunity
+
+Current result:
+- bounded compression is real
+- survivor concentration remains strong
+- some rebound is reduced
+- but durable post-window lock-in has **not** yet been demonstrated
+
+So the current honest claim is **partial scar**, not grand irreversible ruin.
 
 ---
 
 ## Interpretation
 
-The system now has four interacting dynamical layers:
+The system now has several interacting dynamical layers:
 
-- Mean-field filtering → global compression  
-- Thresholded fragility → local positive feedback and clustered collapse  
-- Leakage → cross-lineage transport  
-- Signal alignment → determines whether informal reproduction diffuses or reinforces formal inequality  
+- mean-field filtering -> global compression
+- thresholded fragility -> local positive feedback and clustered collapse
+- leakage -> cross-lineage transport
+- signal alignment -> determines whether informal reproduction diffuses or reinforces formal inequality
+- bounded institutional tightening -> finite interval of stronger compression
+- initial-position amplification -> tests whether ordinary variation hardens into lineage fate
+- thresholded damage / hysteresis -> reduced recoverability after exceptional compression
 
-The key result is:
+The key result so far is this:
 
-> The long-term behavior of lineage diversity depends not only on formal reproductive constraints, but on the bias structure of informal reproduction and on the degree of alignment between formal and informal signals.
+> The long-run behavior of lineage diversity depends not only on formal reproductive constraints, but on the structure of informal reproduction, the alignment between formal and informal signals, and whether a bounded interval of tightening pushes the system into a state from which breadth is harder to recover.
 
 More sharply:
 
 > Informal reproduction is not inherently egalitarian. If it follows the same signal as formal reproduction, it amplifies inequality. If it is sufficiently uncorrelated, it stabilizes diversity.
 
-A second way to put the same point is that the model now behaves as a multi-controller system. One channel allocates reproduction formally; another redistributes it informally. The long-run result depends on how closely the second controller listens to the first.
+And more sharply still:
+
+> Bounded compression can be made the dominant event. The harder question is whether compressed systems merely rebound afterward, or whether they become overfit to their own reduced diversity and therefore harder to reopen.
+
+That last question remains live.
 
 ---
 
-## NOTE
+## Note on “damage”
 
-This model does not represent intention or morality; it is a minimal model of reproductive flow under constrained access, with a secondary leakage channel whose bias and signal alignment determine system behavior.
+If a damage term appears in the model, it does **not** mean hidden death, generic badness, or melodramatic injury.
+
+It is a compressed state variable for reduced recoverability after exceptional compression.
+
+The sharpest current reading is cultural overfitting:
+
+- the system becomes better at preserving its current hierarchy
+- and worse at regenerating breadth once breadth has been lost
+
+That is the only interpretation under which the term is worth keeping.
 
 ---
 
-## Next Step
+## Current status
 
-Explore stronger separation between formal and informal selection by extending the informal signal further:
+Exploratory model with working dynamics.
 
-- test anti-correlated informal signals
-- allow informal attractiveness to persist or drift across generations
-- examine whether competing signals produce stronger tension, oscillation, or more persistent diversity
+Version sketch:
 
-Hypothesis:
+- `v0.3` — mean-field + noise, smooth compression
+- `v0.4` — threshold, uneven collapse
+- `v0.5` — shaped fragility, clustered pruning
+- `v0.6` — leakage / EPP introduces competing flow and three regimes
+- `v0.7` — dual-signal model shows that signal alignment systematically shifts long-run diversity
+- `v0.8` — bounded compression introduced; exposed brittle initialization pathology
+- `v0.8b` — healthier initial ecology, mild heterogeneity, amplification hygiene
+- `v0.9` — thresholded hysteresis / damage term interpreted as reduced recoverability under exceptional compression
 
-> When formal and informal selection signals diverge more strongly, the system may exhibit sustained tension rather than simple convergence toward either collapse or equilibrium.
+The current model demonstrates:
+
+- punctuated-looking lineage compression can emerge from internal dynamics
+- bounded compression can dominate the trajectory
+- survivor concentration can remain strong
+- mild initial variation need not simply dictate the ending
+- partial hysteresis is plausible
+
+The current model does **not yet** demonstrate:
+- strong post-window pruning lag
+- durable post-window lock-in
+- irreversible loss of recoverability
+
+So the present claim is bounded compression plus partial scar, not final proof of deep hysteretic trapping.
+
+---
+
+## Current next step
+
+The next serious question is not whether compression can occur. It can.
+
+The next question is whether the memory term should act less like extra fragility and more like impaired recovery or reduced re-diffusion after compression.
+
+In other words:
+- does reduced diversity merely concentrate survivors,
+- or does it alter the derivative of recovery itself?
+
+That is the current frontier.
 
 ---
 
 ## Structure
 
-- `model/` — simulation code  
-- `notes/` — working notes and logs  
-- `papers/` — reference PDFs  
-- `figures/` — generated plots  
-
----
-
-## Status
-
-Exploratory model with working dynamics.
-
-v0.3 — mean-field + noise (smooth compression)  
-v0.4 — threshold (uneven collapse)  
-v0.5 — shaped fragility (clustered pruning)  
-v0.6 — leakage (EPP) introduces competing flow and three regimes  
-v0.7 — dual-signal model shows that signal alignment systematically shifts long-run diversity  
-
-The current model demonstrates that:
-
-> punctuated-looking lineage collapse can emerge from internal dynamics, and that its persistence, arrest, or moderation depends on the structure of informal reproductive channels.
-
-The system exhibits distinct regimes under variation of a small number of parameters:
-
-- leakage bias: diffusion, equilibrium, amplification  
-- signal alignment: independent, intermediate, aligned
+- `model/` — simulation code
+- `notes/` — working notes and logs
+- `papers/` — reference PDFs
+- `figures/` — generated plots
 
 ---
 
 ## Figures
 
-Figures are generated from simulation code. Selected figures (`sim_*.png`) are versioned when they correspond to specific model states.
+Figures are generated from simulation code. Selected figures (`sim_*.png`) are versioned when they correspond to specific model states and comparison points.

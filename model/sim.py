@@ -31,8 +31,15 @@ POST_SKEW = 1.00
 # Fragility parameters
 MIN_LINEAGE_SIZE = 5
 MIN_PENALTY = 0.10
-BASE_FRAGILITY_ALPHA = 0.1
-FRAGILITY_GAIN = 0.9
+BASE_FRAGILITY_ALPHA = 0.10
+FRAGILITY_GAIN = 0.90
+
+# Damage / hysteresis parameters
+# Damage is scar from exceptional compression, not a tax on ordinary inequality.
+DAMAGE_CONC_THRESHOLD = 0.45
+DAMAGE_ACCUM_GAIN = 0.035
+DAMAGE_DECAY = 0.05
+DAMAGE_ALPHA_GAIN = 0.75
 
 # Initial heterogeneity
 INITIAL_HETEROGENEITY_SIGMA = 0.20
@@ -41,8 +48,8 @@ INITIAL_HETEROGENEITY_SIGMA = 0.20
 SAMPLE_RUNS = 8
 RANDOM_SEED = 42
 
-FIGURE_PATH = Path("figures/sim_v0_8b.png")
-SUMMARY_PATH = Path("notes/v0_8b_summary.json")
+FIGURE_PATH = Path("figures/sim_v0_9.png")
+SUMMARY_PATH = Path("notes/v0_9_summary.json")
 
 
 # -----------------------------
@@ -157,10 +164,6 @@ def safe_correlation(a: np.ndarray, b: np.ndarray) -> float:
 
 
 def initial_counts_from_distribution() -> np.ndarray:
-    """
-    Mild heterogeneity around a broad initial ecology.
-    Mean count is comfortably above fragility threshold.
-    """
     weights = np.random.lognormal(
         mean=0.0,
         sigma=INITIAL_HETEROGENEITY_SIGMA,
@@ -172,9 +175,6 @@ def initial_counts_from_distribution() -> np.ndarray:
 
 
 def tercile_labels(initial_counts: np.ndarray) -> np.ndarray:
-    """
-    0 = lower third, 1 = middle third, 2 = upper third
-    """
     order = np.argsort(initial_counts)
     labels = np.zeros(len(initial_counts), dtype=int)
 
@@ -219,6 +219,9 @@ def run_once() -> dict:
     alpha_hist = []
     skew_hist = []
     concentration_hist = []
+    damage_hist = []
+
+    damage = 0.0
 
     for gen in range(GENERATIONS):
         skew = current_skew(gen)
@@ -227,7 +230,17 @@ def run_once() -> dict:
         concentration = 1.0 - (current_neff / NUM_LINEAGES)
         concentration = np.clip(concentration, 0.0, 1.0)
 
-        effective_alpha = BASE_FRAGILITY_ALPHA + FRAGILITY_GAIN * concentration
+        # Damage is scar from exceptional compression, not a tax on ordinary inequality.
+        # It accumulates only above a tolerated broad-regime concentration level.
+        excess_concentration = max(0.0, concentration - DAMAGE_CONC_THRESHOLD)
+        damage = damage + DAMAGE_ACCUM_GAIN * excess_concentration - DAMAGE_DECAY * damage
+        damage = float(np.clip(damage, 0.0, 1.0))
+
+        effective_alpha = (
+            BASE_FRAGILITY_ALPHA
+            + FRAGILITY_GAIN * concentration
+            + DAMAGE_ALPHA_GAIN * damage
+        )
 
         # Formal channel
         formal_probs = normalize(counts)
@@ -262,6 +275,7 @@ def run_once() -> dict:
         alpha_hist.append(float(effective_alpha))
         skew_hist.append(float(skew))
         concentration_hist.append(float(concentration))
+        damage_hist.append(float(damage))
 
     final_counts = counts.copy()
 
@@ -271,6 +285,7 @@ def run_once() -> dict:
     alpha = np.array(alpha_hist)
     skew = np.array(skew_hist)
     concentration = np.array(concentration_hist)
+    damage_series = np.array(damage_hist)
 
     d_neff = first_difference(neff)
     d_active = first_difference(active)
@@ -310,6 +325,8 @@ def run_once() -> dict:
         "entropy_loss_post": post_entropy_loss,
         "initial_mean_count": float(initial_counts.mean()),
         "initial_std_count": float(initial_counts.std()),
+        "final_damage": float(damage_series[-1]),
+        "max_damage": float(damage_series.max()),
         **terciles,
     }
 
@@ -323,6 +340,7 @@ def run_once() -> dict:
         "alpha": alpha,
         "skew": skew,
         "concentration": concentration,
+        "damage": damage_series,
         "d_neff": d_neff,
         "d_active": d_active,
         "summary": summary,
@@ -367,6 +385,7 @@ def run_experiments() -> dict:
         "alpha_mean": stack("alpha").mean(axis=0),
         "skew_mean": stack("skew").mean(axis=0),
         "concentration_mean": stack("concentration").mean(axis=0),
+        "damage_mean": stack("damage").mean(axis=0),
         "d_neff_mean": stack("d_neff").mean(axis=0),
         "d_active_mean": stack("d_active").mean(axis=0),
         "summary_stats": summary_stats,
@@ -401,6 +420,10 @@ def save_summary_json(results: dict) -> None:
             "MIN_PENALTY": MIN_PENALTY,
             "BASE_FRAGILITY_ALPHA": BASE_FRAGILITY_ALPHA,
             "FRAGILITY_GAIN": FRAGILITY_GAIN,
+            "DAMAGE_CONC_THRESHOLD": DAMAGE_CONC_THRESHOLD,
+            "DAMAGE_ACCUM_GAIN": DAMAGE_ACCUM_GAIN,
+            "DAMAGE_DECAY": DAMAGE_DECAY,
+            "DAMAGE_ALPHA_GAIN": DAMAGE_ALPHA_GAIN,
             "INITIAL_HETEROGENEITY_SIGMA": INITIAL_HETEROGENEITY_SIGMA,
         },
         "summary_stats": results["summary_stats"],
@@ -473,6 +496,7 @@ def plot_results(results: dict, samples: list[dict]) -> None:
     ax = axes[4]
     ax.plot(gens, results["alpha_mean"], label="Fragility alpha")
     ax.plot(gens, results["concentration_mean"], label="Concentration")
+    ax.plot(gens, results["damage_mean"], label="Damage")
     ax.plot(gens, results["skew_mean"], label="Skew")
     ax.axvspan(WINDOW_START, WINDOW_END, alpha=0.12)
     ax.set_title("System state")
@@ -520,6 +544,8 @@ def plot_results(results: dict, samples: list[dict]) -> None:
         "entropy_loss_pre",
         "entropy_loss_window",
         "entropy_loss_post",
+        "final_damage",
+        "max_damage",
     ]:
         val = ss[key]
         print(
@@ -537,4 +563,3 @@ if __name__ == "__main__":
     samples = run_sample_trajectories(SAMPLE_RUNS)
     save_summary_json(results)
     plot_results(results, samples)
-

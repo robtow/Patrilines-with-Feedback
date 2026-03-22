@@ -85,6 +85,22 @@ So a damage term, if added, should alter:
 
 It should not simply deepen the fall by brute force.
 
+A further restriction is now clear from experiment:
+- damage should accumulate only under exceptional compression, not ordinary inequality
+- damage must remain an interior state variable, not saturate trivially
+- damage should reduce recoverability more than it theatrically increases punishment
+
+## What the current hysteresis result permits
+
+The current thresholded damage law is admissible because it no longer behaves like a hidden death switch.
+
+At present it supports the weaker but honest claim:
+- bounded compression can leave a partial scar
+- the scar can reduce rebound somewhat
+- but durable post-window damage has not yet been demonstrated
+
+So the model is currently licensed to speak of partial hysteresis, not triumphant irreversible lock-in.
+
 ## Modeling discipline
 
 The right use of the literature here is narrow and hard-headed:
@@ -97,5 +113,4 @@ The right use of the literature here is narrow and hard-headed:
 
 A blunter version, for my own future reference:
 
-> The literature does not hand me a Bronze Age fragility constant. It does, however, tell me that leakage should probably be low but real, that male-line filtering institutions commonly co-occur, and that the empirical target is not merely collapse but a particular topology: bounded compression plus survivor burst. It also tells me not to begin the machine with everyone already hanging over the cliff and then pretend later brittleness is profound. And if I add a damage term, it had better mean reduced recoverability and institutional overfitting, not stage fog. That is enough to keep the model from wandering off into just-so theater.
-
+> The literature does not hand me a Bronze Age fragility constant. It does, however, tell me that leakage should probably be low but real, that male-line filtering institutions commonly co-occur, and that the empirical target is not merely collapse but a particular topology: bounded compression plus survivor burst. It also tells me not to begin the machine with everyone already hanging over the cliff and then pretend later brittleness is profound. And if I add a damage term, it had better mean reduced recoverability and institutional overfitting, not stage fog. At present the machine is allowed to claim partial scar, not grand irreversible ruin. That is enough to keep the model from wandering off into just-so theater.

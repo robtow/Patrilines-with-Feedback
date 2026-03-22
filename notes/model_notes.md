@@ -12,6 +12,10 @@ Informal channel:
 - leakage mixture
 - informal signal
 
+State variables:
+- concentration from effective lineage diversity
+- thresholded damage / hysteresis as reduced recoverability under exceptional compression
+
 ## Main results so far
 
 - weak continuous filtering is sufficient for compression
@@ -19,6 +23,8 @@ Informal channel:
 - leakage introduces competing flow
 - leakage bias determines whether the channel diffuses or amplifies inequality
 - signal alignment between formal and informal channels shifts long-run diversity monotonically
+- bounded compression can now be made the dominant event rather than an afterthought
+- hysteresis can be made nontrivial without saturating into nonsense
 
 ## Current regimes
 
@@ -38,7 +44,7 @@ The first v0.8 runs were useful precisely because they failed in an informative 
 
 The machine was still panicking almost immediately. Peak pruning occurred near generation 2, long before the bounded pressure window. That meant the model, as initially parameterized, was not yet showing stored fragility after bounded compression. It was front-loading the damage.
 
-The likely pathology was straightforward:
+The pathology was straightforward:
 - initial mean lineage size sat too close to the fragility threshold
 - the system began already near brittleness
 - endogenous fragility then amplified early drift rather than emerging later from compression
@@ -63,7 +69,7 @@ So the model should begin in a world with slack:
 
 A perfectly uniform initialization is mathematically tidy but conceptually stupid if it puts every lineage on the same knife-edge. It turns the first random fluctuation into a synchronized firing squad.
 
-So the next model should use mild initial heterogeneity.
+So later versions use mild initial heterogeneity.
 
 But that raises a new danger: once the start is heterogeneous, it becomes easy to call every later inequality “emergent” when in fact some of it was simply inherited from the draw.
 
@@ -81,6 +87,7 @@ In blunt terms:
 - does the system become brittle because it has been compressed?
 - does pruning lag the forcing window?
 - does bounded tightening convert mild stochastic differences into durable stratification?
+- does reduced diversity become harder to escape once the system has narrowed?
 
 That is the real test.
 
@@ -95,6 +102,7 @@ The model is now being asked not just for lower diversity, but for a topology:
 - survivor concentration
 - plateau versus continued collapse
 - change in the derivative of inequality
+- persistence or rebound after the compression interval
 
 The field already gives shape classes:
 - bounded paternal compression
@@ -147,6 +155,17 @@ For example:
 The question is not whether inequality exists. Of course it does.
 The question is whether the social machine changes its slope, memory, and stickiness.
 
+### 5. Damage behavior
+
+If damage is present, it must be inspected as a state variable rather than assumed to be meaningful.
+
+Relevant checks:
+- final damage
+- max damage
+- whether damage saturates uselessly
+- whether damage reduces rebound
+- whether damage actually delays pruning rather than merely deepening concentration
+
 ## Damage term: what it is allowed to mean
 
 If a damage term enters the model, it is not to mean generic badness, hidden mortality, or melodramatic injury. It must mean something narrower and more defensible.
@@ -190,6 +209,29 @@ Then the symbolic machine reads that narrowed state back as natural order and ti
 
 That is a nasty little loop, and it sounds more like history than either noble savages or instant horse-borne apocalypse.
 
+## What v0.9 now shows
+
+The current thresholded damage law is the first hysteresis version that behaves like a real state variable rather than theatrical fog.
+
+It no longer saturates to 1.0 in every run. Damage now varies modestly across runs and remains in a nontrivial interior range.
+
+Current pattern:
+- broad initial ecology remains healthy
+- bounded compression is dominated by the forcing window
+- survivor concentration remains strong
+- initial-final correlation remains low
+- damage now reduces some rebound without becoming a hidden mortality switch
+
+But the result is still only partial scar, not yet durable post-window damage.
+
+The current system produces:
+- bounded compression
+- concentrated survivors
+- some hysteresis
+- but still substantial post-window re-diffusion
+
+So the machine now appears to know how to compress and leave a scar, but not yet how to stay seriously hurt.
+
 ## Working hypothesis
 
 The strongest form of the current hypothesis is this:
@@ -202,16 +244,18 @@ That is a much stronger claim than “war is unnecessary.”
 
 ## Discipline for the next pass
 
-The next model must satisfy four conditions:
+The next model must satisfy these conditions:
 
 - the pre-window world must be broad enough that diversity is not immediately self-eroding
 - the fragility threshold must represent real marginality, not the default starting condition
 - initial heterogeneity must be mild, visible, and reported
 - results must be judged over an ensemble, not by one dramatic run
+- damage must remain an informative state variable rather than saturating trivially
+- rebound versus persistence must be measured explicitly
 
 Or, more bluntly:
 
 Do not confuse initial variation with emergent structure.
 Do not confuse amplification with creation.
 Do not confuse one vivid run with a regime.
-
+Do not confuse a decorative memory term with a real scar.
