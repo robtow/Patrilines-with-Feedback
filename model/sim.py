@@ -35,6 +35,10 @@ MIN_PENALTY = 0.10
 BASE_FRAGILITY_ALPHA = 0.10
 FRAGILITY_GAIN = 0.90
 
+# v0.16: basin-specific baseline fragility buffering
+# Basin 2 is more forgiving before its own window.
+BASIN_BASE_FRAGILITY_MULTIPLIERS = [1.00, 0.90, 0.75]
+
 # v0.15: window-gated local fragility gain
 WINDOW_FRAGILITY_MULTIPLIERS = [1.45, 1.30, 1.20]
 
@@ -59,7 +63,7 @@ BASE_BASIN_COUPLING = np.array(
     dtype=float,
 )
 
-# v0.14+ : window-driven local closure
+# Window-driven local closure
 WINDOW_CLOSED_DIAG = 0.99
 
 # Local timing metric
@@ -69,8 +73,8 @@ ROLLING_PRUNING_WINDOW = 5
 SAMPLE_RUNS = 6
 RANDOM_SEED = 42
 
-FIGURE_PATH = Path("figures/sim_v0_15.png")
-SUMMARY_PATH = Path("notes/v0_15_summary.json")
+FIGURE_PATH = Path("figures/sim_v0_16.png")
+SUMMARY_PATH = Path("notes/v0_16_summary.json")
 
 
 # -----------------------------
@@ -223,9 +227,10 @@ def current_skew(gen: int, basin_idx: int) -> float:
 
 
 def current_fragility_gain(gen: int, basin_idx: int) -> float:
+    gain = FRAGILITY_GAIN * BASIN_BASE_FRAGILITY_MULTIPLIERS[basin_idx]
     if in_window(gen, basin_idx):
-        return FRAGILITY_GAIN * WINDOW_FRAGILITY_MULTIPLIERS[basin_idx]
-    return FRAGILITY_GAIN
+        gain *= WINDOW_FRAGILITY_MULTIPLIERS[basin_idx]
+    return gain
 
 
 def rolling_main_pruning_time(series: np.ndarray, window: int = ROLLING_PRUNING_WINDOW) -> int:
@@ -572,6 +577,7 @@ def save_summary_json(results: dict) -> None:
             "MIN_PENALTY": MIN_PENALTY,
             "BASE_FRAGILITY_ALPHA": BASE_FRAGILITY_ALPHA,
             "FRAGILITY_GAIN": FRAGILITY_GAIN,
+            "BASIN_BASE_FRAGILITY_MULTIPLIERS": BASIN_BASE_FRAGILITY_MULTIPLIERS,
             "WINDOW_FRAGILITY_MULTIPLIERS": WINDOW_FRAGILITY_MULTIPLIERS,
             "DAMAGE_CONC_THRESHOLD": DAMAGE_CONC_THRESHOLD,
             "DAMAGE_ACCUM_GAIN": DAMAGE_ACCUM_GAIN,
@@ -605,7 +611,7 @@ def plot_results(results: dict, samples: list[dict]) -> None:
     )
     for s, e in zip(WINDOW_STARTS, WINDOW_ENDS):
         ax.axvspan(s, e, alpha=0.06)
-    ax.set_title("v0.15 Daisyworld: global entropy")
+    ax.set_title("v0.16 Daisyworld: global entropy")
     ax.set_ylabel("H")
 
     ax = axes[1]
@@ -722,4 +728,3 @@ if __name__ == "__main__":
     samples = run_sample_trajectories(SAMPLE_RUNS)
     save_summary_json(results)
     plot_results(results, samples)
-
