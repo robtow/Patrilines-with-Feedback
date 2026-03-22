@@ -8,8 +8,8 @@ import numpy as np
 # Parameters
 # -----------------------------
 
-NUM_LINEAGES = 100
 POP_SIZE = 1000
+NUM_LINEAGES = 50
 GENERATIONS = 100
 TRIALS = 40
 
@@ -25,21 +25,24 @@ WINDOW_START = 30
 WINDOW_END = 60
 
 BASE_SKEW = 1.00
-WINDOW_SKEW = 1.05
+WINDOW_SKEW = 1.07
 POST_SKEW = 1.00
 
 # Fragility parameters
-MIN_LINEAGE_SIZE = 10
-MIN_PENALTY = 0.05
-BASE_FRAGILITY_ALPHA = 0.5
-FRAGILITY_GAIN = 2.0
+MIN_LINEAGE_SIZE = 5
+MIN_PENALTY = 0.10
+BASE_FRAGILITY_ALPHA = 0.1
+FRAGILITY_GAIN = 0.9
+
+# Initial heterogeneity
+INITIAL_HETEROGENEITY_SIGMA = 0.20
 
 # Plotting / runs
 SAMPLE_RUNS = 8
 RANDOM_SEED = 42
 
-FIGURE_PATH = Path("figures/sim_v0_8.png")
-SUMMARY_PATH = Path("notes/v0_8_summary.json")
+FIGURE_PATH = Path("figures/sim_v0_8b.png")
+SUMMARY_PATH = Path("notes/v0_8b_summary.json")
 
 
 # -----------------------------
@@ -88,10 +91,6 @@ def fragility_multiplier(counts: np.ndarray, alpha: float) -> np.ndarray:
 
 
 def compute_attractiveness(counts: np.ndarray) -> np.ndarray:
-    """
-    Informal selection signal.
-    SIGNAL_CORRELATION controls alignment with formal lineage size.
-    """
     base = normalize(counts)
     noise = np.random.lognormal(mean=0.0, sigma=0.5, size=len(counts))
 
@@ -105,20 +104,6 @@ def compute_attractiveness(counts: np.ndarray) -> np.ndarray:
         attr = (inv ** abs(SIGNAL_CORRELATION)) * noise
 
     return normalize(attr)
-
-
-def top_k_shares(counts: np.ndarray) -> dict:
-    counts = np.array(counts, dtype=float)
-    total = counts.sum()
-    if total <= 0:
-        return {"top1": 0.0, "top3": 0.0, "top5": 0.0}
-
-    sorted_counts = np.sort(counts)[::-1]
-    return {
-        "top1": float(sorted_counts[:1].sum() / total),
-        "top3": float(sorted_counts[:3].sum() / total),
-        "top5": float(sorted_counts[:5].sum() / total),
-    }
 
 
 def first_difference(series: np.ndarray) -> np.ndarray:
@@ -139,12 +124,94 @@ def late_run_slope(series: np.ndarray, start: int = 70) -> float:
     return float(m)
 
 
+def gini(values: np.ndarray) -> float:
+    x = np.array(values, dtype=float)
+    if np.allclose(x.sum(), 0.0):
+        return 0.0
+    x = np.sort(x)
+    n = len(x)
+    index = np.arange(1, n + 1)
+    return float((np.sum((2 * index - n - 1) * x)) / (n * np.sum(x)))
+
+
+def top_k_shares(counts: np.ndarray) -> dict:
+    counts = np.array(counts, dtype=float)
+    total = counts.sum()
+    if total <= 0:
+        return {"top1": 0.0, "top3": 0.0, "top5": 0.0}
+
+    sorted_counts = np.sort(counts)[::-1]
+    return {
+        "top1": float(sorted_counts[:1].sum() / total),
+        "top3": float(sorted_counts[:3].sum() / total),
+        "top5": float(sorted_counts[:5].sum() / total),
+    }
+
+
+def safe_correlation(a: np.ndarray, b: np.ndarray) -> float:
+    a = np.array(a, dtype=float)
+    b = np.array(b, dtype=float)
+    if np.std(a) < 1e-12 or np.std(b) < 1e-12:
+        return 0.0
+    return float(np.corrcoef(a, b)[0, 1])
+
+
+def initial_counts_from_distribution() -> np.ndarray:
+    """
+    Mild heterogeneity around a broad initial ecology.
+    Mean count is comfortably above fragility threshold.
+    """
+    weights = np.random.lognormal(
+        mean=0.0,
+        sigma=INITIAL_HETEROGENEITY_SIGMA,
+        size=NUM_LINEAGES,
+    )
+    weights = normalize(weights)
+    counts = np.random.multinomial(POP_SIZE, weights)
+    return counts
+
+
+def tercile_labels(initial_counts: np.ndarray) -> np.ndarray:
+    """
+    0 = lower third, 1 = middle third, 2 = upper third
+    """
+    order = np.argsort(initial_counts)
+    labels = np.zeros(len(initial_counts), dtype=int)
+
+    n = len(initial_counts)
+    t1 = n // 3
+    t2 = 2 * n // 3
+
+    labels[order[:t1]] = 0
+    labels[order[t1:t2]] = 1
+    labels[order[t2:]] = 2
+    return labels
+
+
+def tercile_stats(initial_labels: np.ndarray, final_counts: np.ndarray) -> dict:
+    out = {}
+    total = final_counts.sum()
+
+    for tercile, name in [(0, "lower"), (1, "middle"), (2, "upper")]:
+        mask = initial_labels == tercile
+        group_counts = final_counts[mask]
+        survivors = np.count_nonzero(group_counts)
+        group_total = group_counts.sum()
+
+        out[f"{name}_survival_rate"] = float(survivors / mask.sum())
+        out[f"{name}_final_share"] = float(group_total / total) if total > 0 else 0.0
+
+    return out
+
+
 # -----------------------------
 # Single run
 # -----------------------------
 
 def run_once() -> dict:
-    counts = np.ones(NUM_LINEAGES, dtype=float) * (POP_SIZE // NUM_LINEAGES)
+    counts = initial_counts_from_distribution()
+    initial_counts = counts.copy()
+    initial_labels = tercile_labels(initial_counts)
 
     entropy_hist = []
     neff_hist = []
@@ -156,12 +223,10 @@ def run_once() -> dict:
     for gen in range(GENERATIONS):
         skew = current_skew(gen)
 
-        # Global concentration state
         current_neff = effective_lineages(counts)
         concentration = 1.0 - (current_neff / NUM_LINEAGES)
         concentration = np.clip(concentration, 0.0, 1.0)
 
-        # Endogenous fragility from concentration
         effective_alpha = BASE_FRAGILITY_ALPHA + FRAGILITY_GAIN * concentration
 
         # Formal channel
@@ -198,6 +263,8 @@ def run_once() -> dict:
         skew_hist.append(float(skew))
         concentration_hist.append(float(concentration))
 
+    final_counts = counts.copy()
+
     entropy = np.array(entropy_hist)
     neff = np.array(neff_hist)
     active = np.array(active_hist)
@@ -209,26 +276,29 @@ def run_once() -> dict:
     d_active = first_difference(active)
     dd_neff = second_difference(neff)
 
-    shares = top_k_shares(counts)
+    shares = top_k_shares(final_counts)
+    terciles = tercile_stats(initial_labels, final_counts)
 
     window_midpoint = (WINDOW_START + WINDOW_END) / 2.0
     peak_pruning_gen = int(np.argmin(d_neff))
     pruning_lag = float(peak_pruning_gen - window_midpoint)
 
     total_entropy_loss = float(entropy[0] - entropy[-1])
-    if abs(total_entropy_loss) < 1e-12:
-        pre_entropy_loss = 0.0
-        window_entropy_loss = 0.0
-        post_entropy_loss = 0.0
-    else:
-        pre_entropy_loss = float(entropy[0] - entropy[WINDOW_START])
-        window_entropy_loss = float(entropy[WINDOW_START] - entropy[WINDOW_END - 1])
-        post_entropy_loss = float(entropy[WINDOW_END - 1] - entropy[-1])
+    pre_entropy_loss = float(entropy[0] - entropy[WINDOW_START])
+    window_entropy_loss = float(entropy[WINDOW_START] - entropy[WINDOW_END - 1])
+    post_entropy_loss = float(entropy[WINDOW_END - 1] - entropy[-1])
+
+    initial_shares = top_k_shares(initial_counts)
 
     summary = {
         "top1": shares["top1"],
         "top3": shares["top3"],
         "top5": shares["top5"],
+        "initial_top1": initial_shares["top1"],
+        "initial_top3": initial_shares["top3"],
+        "initial_gini": gini(initial_counts),
+        "final_gini": gini(final_counts),
+        "initial_final_corr": safe_correlation(initial_counts, final_counts),
         "peak_pruning_gen": peak_pruning_gen,
         "pruning_lag": pruning_lag,
         "max_curvature_gen": int(np.argmax(np.abs(dd_neff))),
@@ -238,9 +308,15 @@ def run_once() -> dict:
         "entropy_loss_pre": pre_entropy_loss,
         "entropy_loss_window": window_entropy_loss,
         "entropy_loss_post": post_entropy_loss,
+        "initial_mean_count": float(initial_counts.mean()),
+        "initial_std_count": float(initial_counts.std()),
+        **terciles,
     }
 
     return {
+        "initial_counts": initial_counts,
+        "final_counts": final_counts,
+        "initial_labels": initial_labels,
         "entropy": entropy,
         "neff": neff,
         "active": active,
@@ -269,23 +345,12 @@ def aggregate_scalar(values: list[float]) -> dict:
 
 def run_experiments() -> dict:
     np.random.seed(RANDOM_SEED)
-
     runs = [run_once() for _ in range(TRIALS)]
 
     def stack(key: str) -> np.ndarray:
         return np.stack([r[key] for r in runs], axis=0)
 
-    entropy_runs = stack("entropy")
-    neff_runs = stack("neff")
-    active_runs = stack("active")
-    alpha_runs = stack("alpha")
-    skew_runs = stack("skew")
-    concentration_runs = stack("concentration")
-    d_neff_runs = stack("d_neff")
-    d_active_runs = stack("d_active")
-
     summaries = [r["summary"] for r in runs]
-
     summary_stats = {
         key: aggregate_scalar([s[key] for s in summaries])
         for key in summaries[0].keys()
@@ -293,17 +358,17 @@ def run_experiments() -> dict:
 
     return {
         "runs": runs,
-        "entropy_mean": entropy_runs.mean(axis=0),
-        "entropy_std": entropy_runs.std(axis=0),
-        "neff_mean": neff_runs.mean(axis=0),
-        "neff_std": neff_runs.std(axis=0),
-        "active_mean": active_runs.mean(axis=0),
-        "active_std": active_runs.std(axis=0),
-        "alpha_mean": alpha_runs.mean(axis=0),
-        "skew_mean": skew_runs.mean(axis=0),
-        "concentration_mean": concentration_runs.mean(axis=0),
-        "d_neff_mean": d_neff_runs.mean(axis=0),
-        "d_active_mean": d_active_runs.mean(axis=0),
+        "entropy_mean": stack("entropy").mean(axis=0),
+        "entropy_std": stack("entropy").std(axis=0),
+        "neff_mean": stack("neff").mean(axis=0),
+        "neff_std": stack("neff").std(axis=0),
+        "active_mean": stack("active").mean(axis=0),
+        "active_std": stack("active").std(axis=0),
+        "alpha_mean": stack("alpha").mean(axis=0),
+        "skew_mean": stack("skew").mean(axis=0),
+        "concentration_mean": stack("concentration").mean(axis=0),
+        "d_neff_mean": stack("d_neff").mean(axis=0),
+        "d_active_mean": stack("d_active").mean(axis=0),
         "summary_stats": summary_stats,
     }
 
@@ -319,8 +384,8 @@ def run_sample_trajectories(n_runs: int) -> list[dict]:
 def save_summary_json(results: dict) -> None:
     payload = {
         "params": {
-            "NUM_LINEAGES": NUM_LINEAGES,
             "POP_SIZE": POP_SIZE,
+            "NUM_LINEAGES": NUM_LINEAGES,
             "GENERATIONS": GENERATIONS,
             "TRIALS": TRIALS,
             "NOISE_SIGMA": NOISE_SIGMA,
@@ -336,6 +401,7 @@ def save_summary_json(results: dict) -> None:
             "MIN_PENALTY": MIN_PENALTY,
             "BASE_FRAGILITY_ALPHA": BASE_FRAGILITY_ALPHA,
             "FRAGILITY_GAIN": FRAGILITY_GAIN,
+            "INITIAL_HETEROGENEITY_SIGMA": INITIAL_HETEROGENEITY_SIGMA,
         },
         "summary_stats": results["summary_stats"],
     }
@@ -346,13 +412,12 @@ def save_summary_json(results: dict) -> None:
 
 def plot_results(results: dict, samples: list[dict]) -> None:
     FIGURE_PATH.parent.mkdir(parents=True, exist_ok=True)
-
     gens = np.arange(GENERATIONS)
 
     fig, axes = plt.subplots(6, 1, figsize=(12, 18))
 
     title_suffix = (
-        f"window=({WINDOW_START},{WINDOW_END}), "
+        f"lineages={NUM_LINEAGES}, window=({WINDOW_START},{WINDOW_END}), "
         f"epp={EPP_RATE}, mix={EPP_STATUS_WEIGHT}, corr={SIGNAL_CORRELATION}"
     )
 
@@ -432,9 +497,21 @@ def plot_results(results: dict, samples: list[dict]) -> None:
     ss = results["summary_stats"]
     print("\nSummary statistics across runs:")
     for key in [
+        "initial_mean_count",
+        "initial_std_count",
+        "initial_top1",
         "top1",
         "top3",
         "top5",
+        "initial_gini",
+        "final_gini",
+        "initial_final_corr",
+        "lower_survival_rate",
+        "middle_survival_rate",
+        "upper_survival_rate",
+        "lower_final_share",
+        "middle_final_share",
+        "upper_final_share",
         "peak_pruning_gen",
         "pruning_lag",
         "max_curvature_gen",
@@ -446,7 +523,7 @@ def plot_results(results: dict, samples: list[dict]) -> None:
     ]:
         val = ss[key]
         print(
-            f"{key:20s} mean={val['mean']:.3f} std={val['std']:.3f} "
+            f"{key:22s} mean={val['mean']:.3f} std={val['std']:.3f} "
             f"min={val['min']:.3f} max={val['max']:.3f}"
         )
 

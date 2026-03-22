@@ -17,13 +17,13 @@ The bounded pressure window is not to be interpreted as arbitrary forcing. It st
 So the correct reading is not “history happened between generations 30 and 60.” The correct reading is: this is a stand-in for a bounded interval in which male-line filtering institutions become more coherent and therefore more effective.
 
 **Working rail:**
-- the pressure window represents **institutional co-alignment**
+- the pressure window represents institutional co-alignment
 - do not pretend it is a direct historical timestamp
 - do not assign it a fake ethnographic coefficient
 
 ## Genetic shape targets
 
-Karmin et al. report a recent bottleneck in Y-chromosome diversity that does **not** appear comparably in mtDNA, which is the central asymmetry this model must respect. ([pmc.ncbi.nlm.nih.gov](https://pmc.ncbi.nlm.nih.gov/articles/PMC4381518/))
+Karmin et al. report a recent bottleneck in Y-chromosome diversity that does not appear comparably in mtDNA, which is the central asymmetry this model must respect. ([pmc.ncbi.nlm.nih.gov](https://pmc.ncbi.nlm.nih.gov/articles/PMC4381518/))
 
 The peaceful-explanation paper by Guyon et al. explicitly frames patrilineal segmentary systems as sufficient to explain the post-Neolithic Y bottleneck without warfare, which means the field itself has already moved beyond “war or nothing.” ([pmc.ncbi.nlm.nih.gov](https://pmc.ncbi.nlm.nih.gov/articles/PMC11043392/))
 
@@ -36,16 +36,16 @@ So the empirical target is not merely “low diversity.” It is a more particul
 **Working rail:**
 Judge the model against topology, not endpoint alone.
 
-## What the literature does *not* give me
+## What the literature does not give me
 
-It does **not** give me:
+It does not give me:
 - a Bronze Age fragility coefficient
 - an exact leakage rate for prehistory
 - a neat scalar for “patriarchy”
 
 So I am not going to launder soft historical description into fake numerical authority. That sort of thing is how one gets a very pretty model and a false one.
 
-## New rail from v0.8
+## Rail from v0.8 and v0.8b
 
 The initial state must represent a broad, redundant male-line ecology rather than a system already perched on the fragility boundary.
 
@@ -67,17 +67,35 @@ Initial heterogeneity is not yet hierarchy. It is merely variation. So the model
 - initial distribution should be recorded, not silently generated and forgotten
 - amplification must be measured, not merely assumed from unequal outcomes
 
+## Damage rail
+
+If a damage term is introduced, it must not function as hidden mortality or fake dramatic seasoning.
+
+It is only admissible if interpreted as accumulated loss of recoverability after compression. The most interesting and defensible reading so far is cultural overfitting.
+
+That means:
+- the system becomes more competent at preserving its current hierarchy
+- and less competent at regenerating breadth once breadth has been lost
+
+So a damage term, if added, should alter:
+- recovery
+- stickiness
+- re-diffusion
+- post-window persistence of inequality
+
+It should not simply deepen the fall by brute force.
+
 ## Modeling discipline
 
 The right use of the literature here is narrow and hard-headed:
 
-- leakage should be **low but nonzero** by default, not flamboyant ([pmc.ncbi.nlm.nih.gov](https://pmc.ncbi.nlm.nih.gov/articles/PMC1733152/))
-- bounded pressure should represent **institutional tightening**, not arbitrary plot shaping ([d-place.org](https://d-place.org/contributions/EA))
-- outputs should be judged by **shape**, especially bounded compression, pruning lag, and survivor fan-out, not by a low endpoint alone ([pmc.ncbi.nlm.nih.gov](https://pmc.ncbi.nlm.nih.gov/articles/PMC4381518/))
+- leakage should be low but nonzero by default, not flamboyant ([pmc.ncbi.nlm.nih.gov](https://pmc.ncbi.nlm.nih.gov/articles/PMC1733152/))
+- bounded pressure should represent institutional tightening, not arbitrary plot shaping ([d-place.org](https://d-place.org/contributions/EA))
+- outputs should be judged by shape, especially bounded compression, pruning lag, and survivor fan-out, not by a low endpoint alone ([pmc.ncbi.nlm.nih.gov](https://pmc.ncbi.nlm.nih.gov/articles/PMC4381518/))
 - initial variation must not be confused with emergent structure
 - one dramatic run must not be confused with a regime
 
 A blunter version, for my own future reference:
 
-> The literature does not hand me a Bronze Age fragility constant. It does, however, tell me that leakage should probably be low but real, that male-line filtering institutions commonly co-occur, and that the empirical target is not merely collapse but a particular topology: bounded compression plus survivor burst. It also tells me not to begin the machine with everyone already hanging over the cliff and then pretend later brittleness is profound. That is enough to keep the model from wandering off into just-so theater.
+> The literature does not hand me a Bronze Age fragility constant. It does, however, tell me that leakage should probably be low but real, that male-line filtering institutions commonly co-occur, and that the empirical target is not merely collapse but a particular topology: bounded compression plus survivor burst. It also tells me not to begin the machine with everyone already hanging over the cliff and then pretend later brittleness is profound. And if I add a damage term, it had better mean reduced recoverability and institutional overfitting, not stage fog. That is enough to keep the model from wandering off into just-so theater.
 

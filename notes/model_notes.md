@@ -36,16 +36,16 @@ v0.7:
 
 The first v0.8 runs were useful precisely because they failed in an informative way.
 
-The machine was still panicking almost immediately. Peak pruning occurred near generation 2, long before the bounded pressure window. That means the model, as initially parameterized, was not yet showing stored fragility after bounded compression. It was front-loading the damage.
+The machine was still panicking almost immediately. Peak pruning occurred near generation 2, long before the bounded pressure window. That meant the model, as initially parameterized, was not yet showing stored fragility after bounded compression. It was front-loading the damage.
 
-The likely pathology is straightforward:
+The likely pathology was straightforward:
 - initial mean lineage size sat too close to the fragility threshold
 - the system began already near brittleness
 - endogenous fragility then amplified early drift rather than emerging later from compression
 
 In plain language: the machine was born sick.
 
-That is not a subtle result, but it is a real one.
+That was not a subtle result, but it was a real one.
 
 ## Conceptual reset
 
@@ -147,11 +147,56 @@ For example:
 The question is not whether inequality exists. Of course it does.
 The question is whether the social machine changes its slope, memory, and stickiness.
 
+## Damage term: what it is allowed to mean
+
+If a damage term enters the model, it is not to mean generic badness, hidden mortality, or melodramatic injury. It must mean something narrower and more defensible.
+
+The strongest interpretation so far is this:
+
+Damage is accumulated loss of recoverability in the male-line social-ecological system, arising from prior compression of lineage diversity.
+
+That loss of recoverability can stand in for several concrete things that share the same dynamical property: they do not reset immediately when external pressure relaxes.
+
+These include:
+- weaker alliance options
+- thinner marriage prospects
+- reduced lineage legitimacy
+- poorer continuity of resource transmission
+- lower network redundancy
+- increased sensitivity to perturbation after compression
+
+But the sharpest interpretation is this:
+
+### Damage as cultural overfitting
+
+A tightly structured male-line society may become very good at preserving its current hierarchy and very bad at recovering breadth once that breadth has been lost.
+
+In that sense the system overfits to its own reduced diversity.
+
+That is not mystical. It is engineering. A controller can become highly competent at maintaining one regime and highly incompetent at escaping it. The more tightly tuned it is to preserving current winners, the worse it becomes at re-opening lineage opportunity once redundancy has been reduced.
+
+So if damage is added, it should act as:
+- accumulated rigidity
+- reduced capacity for re-diffusion
+- slower recovery after compression
+- greater stickiness of inequality
+
+That is the right interpretation because it links the symbolic and biological sides without pretending they are literally the same substance.
+
+The symbolic machine compresses lineages.
+Compression lowers redundancy.
+Lower redundancy makes the system less forgiving.
+Then the symbolic machine reads that narrowed state back as natural order and tightens further.
+
+That is a nasty little loop, and it sounds more like history than either noble savages or instant horse-borne apocalypse.
+
 ## Working hypothesis
 
 The strongest form of the current hypothesis is this:
 
 A bounded interval of cultural tightening does not merely reduce diversity while active. It changes the transfer function by which male lines persist. As entropy falls, redundancy falls. As redundancy falls, fragility rises. Once the system is sufficiently compressed, the same perturbations become more dangerous, and mild initial variation is more easily converted into durable pruning and survivor concentration.
+
+If a damage term is required, it should not deepen the fall by magic. It should reduce recoverability and make the compressed state harder to escape.
 
 That is a much stronger claim than “war is unnecessary.”
 
