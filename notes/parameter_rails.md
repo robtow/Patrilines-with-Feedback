@@ -4,7 +4,7 @@ This machine is not fitted to hidden Bronze Age constants, because history does 
 
 ## Leakage / EPP
 
-The leakage channel should be treated as low but persistent, not as operatic scandal. Bellis et al. reviewed published paternal-discrepancy studies and reported estimates ranging from **0.8% to 30%**, with a **median of 3.7%** across 17 studies, while also making clear that the literature is heavily biased by sample selection. That is quite enough to justify keeping baseline leakage in the **low single digits** rather than in some lurid tabloid range. ([pmc.ncbi.nlm.nih.gov](https://pmc.ncbi.nlm.nih.gov/articles/PMC1733152/))
+The leakage channel should be treated as low but persistent, not as operatic scandal. Bellis et al. reviewed published paternal-discrepancy studies and reported estimates ranging from **0.8% to 30%**, with a **median of 3.7%** across 17 studies, while also making clear that the literature is heavily biased by sample selection. That is quite enough to justify keeping baseline leakage in the low single digits rather than in some lurid tabloid range.
 
 **Working rail:**
 - `EPP_RATE ≈ 0.01–0.05` as a serious default range
@@ -12,7 +12,7 @@ The leakage channel should be treated as low but persistent, not as operatic sca
 
 ## Social-structural tightening
 
-The bounded pressure window is not to be interpreted as arbitrary forcing. It stands for a period in which several institutions become more tightly coupled: descent, residence, inheritance, marriage organization, class differentiation, legitimacy. D-PLACE exposes exactly these sorts of variables from the Ethnographic Atlas contribution, including marital residence, inheritance, and social stratification measures. ([d-place.org](https://d-place.org/contributions/EA))
+The bounded pressure window is not to be interpreted as arbitrary forcing. It stands for a period in which several institutions become more tightly coupled: descent, residence, inheritance, marriage organization, class differentiation, legitimacy.
 
 So the correct reading is not “history happened between generations 30 and 60.” The correct reading is: this is a stand-in for a bounded interval in which male-line filtering institutions become more coherent and therefore more effective.
 
@@ -23,11 +23,7 @@ So the correct reading is not “history happened between generations 30 and 60.
 
 ## Genetic shape targets
 
-Karmin et al. report a recent bottleneck in Y-chromosome diversity that does not appear comparably in mtDNA, which is the central asymmetry this model must respect. ([pmc.ncbi.nlm.nih.gov](https://pmc.ncbi.nlm.nih.gov/articles/PMC4381518/))
-
-The peaceful-explanation paper by Guyon et al. explicitly frames patrilineal segmentary systems as sufficient to explain the post-Neolithic Y bottleneck without warfare, which means the field itself has already moved beyond “war or nothing.” ([pmc.ncbi.nlm.nih.gov](https://pmc.ncbi.nlm.nih.gov/articles/PMC11043392/))
-
-So the empirical target is not merely “low diversity.” It is a more particular shape:
+The empirical target is not merely “low diversity.” It is a more particular shape:
 - bounded paternal compression
 - no comparable maternal collapse
 - sparse survivor set
@@ -88,7 +84,13 @@ It should not simply deepen the fall by brute force.
 A further restriction is now clear from experiment:
 - damage should accumulate only under exceptional compression, not ordinary inequality
 - damage must remain an interior state variable, not saturate trivially
-- damage should reduce recoverability more than it theatrically increases punishment
+
+A still sharper restriction is now also clear:
+- placement of damage in the transfer function matters
+- recovery-channel suppression alone is too weak at present scale
+- the best current result requires damage to affect persistence more directly
+
+So the current system is allowed to say that reduced recoverability is real, but not that it lives only in the loosest informal channel.
 
 ## What the current hysteresis result permits
 
@@ -99,18 +101,23 @@ At present it supports the weaker but honest claim:
 - the scar can reduce rebound somewhat
 - but durable post-window damage has not yet been demonstrated
 
+It also supports a sharper methodological claim:
+- `v0.9` is currently the best behavioral family
+- `v0.10` is the useful negative control
+- `v0.11` is informative but not superior
+
 So the model is currently licensed to speak of partial hysteresis, not triumphant irreversible lock-in.
 
 ## Modeling discipline
 
 The right use of the literature here is narrow and hard-headed:
 
-- leakage should be low but nonzero by default, not flamboyant ([pmc.ncbi.nlm.nih.gov](https://pmc.ncbi.nlm.nih.gov/articles/PMC1733152/))
-- bounded pressure should represent institutional tightening, not arbitrary plot shaping ([d-place.org](https://d-place.org/contributions/EA))
-- outputs should be judged by shape, especially bounded compression, pruning lag, and survivor fan-out, not by a low endpoint alone ([pmc.ncbi.nlm.nih.gov](https://pmc.ncbi.nlm.nih.gov/articles/PMC4381518/))
+- leakage should be low but nonzero by default, not flamboyant
+- bounded pressure should represent institutional tightening, not arbitrary plot shaping
+- outputs should be judged by shape, especially bounded compression, pruning lag, and survivor fan-out, not by a low endpoint alone
 - initial variation must not be confused with emergent structure
 - one dramatic run must not be confused with a regime
 
 A blunter version, for my own future reference:
 
-> The literature does not hand me a Bronze Age fragility constant. It does, however, tell me that leakage should probably be low but real, that male-line filtering institutions commonly co-occur, and that the empirical target is not merely collapse but a particular topology: bounded compression plus survivor burst. It also tells me not to begin the machine with everyone already hanging over the cliff and then pretend later brittleness is profound. And if I add a damage term, it had better mean reduced recoverability and institutional overfitting, not stage fog. At present the machine is allowed to claim partial scar, not grand irreversible ruin. That is enough to keep the model from wandering off into just-so theater.
+> The literature does not hand me a Bronze Age fragility constant. It does, however, tell me that leakage should probably be low but real, that male-line filtering institutions commonly co-occur, and that the empirical target is not merely collapse but a particular topology: bounded compression plus survivor burst. It also tells me not to begin the machine with everyone already hanging over the cliff and then pretend later brittleness is profound. And if I add a damage term, it had better mean reduced recoverability and institutional overfitting, not stage fog. At present the machine is allowed to claim partial scar, not grand irreversible ruin. The present uglier lesson is that hysteresis seems to matter most when it makes persistence itself stickier, not merely when it weakens informal recovery at the margin. That is enough to keep the model from wandering off into just-so theater.

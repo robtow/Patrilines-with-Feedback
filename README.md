@@ -1,256 +1,291 @@
-# Patrilines with Feedback
+# Model Notes
 
-A small exploratory model accompanying the essay:
+## Current control structure
 
-*Patrilines with Feedback; or, A Short Inquiry into the Y-Chromosome Bottleneck, Considered as a Control System.*
+Formal channel:
+- skew
+- fragility threshold / shaped fragility
+- multiplicative noise
 
-## Purpose
+Informal channel:
+- leakage rate
+- leakage mixture
+- informal signal
 
-This repository explores whether the observed reduction in Y-chromosome lineage diversity can arise from the steady operation of coupled reproductive filters, rather than requiring large-scale episodic events such as warfare.
+State variables:
+- concentration from effective lineage diversity
+- thresholded damage / hysteresis as reduced recoverability under exceptional compression
 
-The aim is structural demonstration, not historical reconstruction.
+## Main results so far
 
-More specifically, the project asks whether bounded intervals of tighter cultural and institutional filtering can compress male-line diversity, and whether that compression can alter later system behavior by reducing recoverability.
+- weak continuous filtering is sufficient for compression
+- thresholded fragility produces clustered pruning
+- leakage introduces competing flow
+- leakage bias determines whether the channel diffuses or amplifies inequality
+- signal alignment between formal and informal channels shifts long-run diversity monotonically
+- bounded compression can now be made the dominant event rather than an afterthought
+- hysteresis can be made nontrivial without saturating into nonsense
+- where hysteresis enters the system matters more than the mere existence of hysteresis
 
----
+## Current regimes
 
-## Current Model
+v0.6:
+- random leakage -> diffusion
+- mixed leakage -> equilibrium
+- status-weighted leakage -> amplification
 
-The simulation now includes:
+v0.7:
+- corr 0.0 -> highest diversity
+- corr 0.5 -> intermediate
+- corr 1.0 -> strongest compression
 
-- a population divided into lineages
-- generational reproduction via multinomial sampling
-- a controllable skew parameter
-- multiplicative lineage-specific noise
-- thresholded fragility as lineage size falls
-- a leakage channel (EPP):
-  - fraction of births reassigned biologically
-  - mixture of:
-    - random diffusion
-    - status-weighted reproduction
-- a dual-signal structure:
-  - a formal signal governing institutional reproduction
-  - an informal signal governing leakage / EPP
-  - tunable correlation between the two
-- a bounded compression window:
-  - interpreted as a bounded interval of tighter memetic / institutional coherence
-- mild heterogeneous initial lineage sizes:
-  - broad initial ecology
-  - visible but not yet fate-like variation
-- initial-position hygiene:
-  - lineages grouped by lower / middle / upper initial terciles
-  - later survival and share tracked by starting position
-- a thresholded damage / hysteresis term:
-  - interpreted as reduced recoverability under exceptional compression
-  - not hidden mortality
-  - not generic “badness”
+## What v0.8 exposed
 
-Tracked quantities include:
+The first v0.8 runs were useful precisely because they failed in an informative way.
 
-- Shannon entropy
-- effective number of lineages (`e^H`)
-- active lineage count
-- pruning derivatives
-- pre-window / window / post-window entropy loss
-- peak pruning generation
-- pruning lag relative to window midpoint
-- survivor concentration:
-  - top-1 share
-  - top-3 share
-  - top-5 share
-- initial / final correlation
-- initial and final Gini
-- survival rate by initial tercile
-- final share by initial tercile
-- damage statistics
+The machine was still panicking almost immediately. Peak pruning occurred near generation 2, long before the bounded pressure window. That meant the model, as initially parameterized, was not yet showing stored fragility after bounded compression. It was front-loading the damage.
 
----
+The pathology was straightforward:
+- initial mean lineage size sat too close to the fragility threshold
+- the system began already near brittleness
+- endogenous fragility then amplified early drift rather than emerging later from compression
 
-## What the model now shows
+In plain language: the machine was born sick.
 
-### 1. Continuous filtering is sufficient for compression
+That was not a subtle result, but it was a real one.
 
-Even weak skew produces sustained lineage compression.
+## Conceptual reset
 
-### 2. Thresholded fragility produces clustered pruning
+The initial state should represent a relatively broad, redundant male-line ecology.
 
-Lineages can linger near viability, then decline accelerates, producing uneven pruning rather than a perfectly smooth fade.
+That fits the larger historical intuition: pruning is not primordial. It arises because cultural complexity, inheritance, legitimacy, residence rules, status differentiation, and related machinery create larger and more stratified systems with memory. The point of the bounded pressure window is to stand in for the tightening and co-alignment of those institutions.
 
-### 3. Leakage introduces a competing flow
+So the model should begin in a world with slack:
+- many coexisting male lines
+- local weakness survivable
+- mild variation present but not yet destiny
+- no immediate synchronized fall over a threshold edge
 
-The system is no longer purely compressive; diversity can be partially replenished.
+## Heterogeneous starts and epistemic hygiene
 
-### 4. Leakage bias matters
+A perfectly uniform initialization is mathematically tidy but conceptually stupid if it puts every lineage on the same knife-edge. It turns the first random fluctuation into a synchronized firing squad.
 
-Three regimes emerged in earlier versions:
+So later versions use mild initial heterogeneity.
 
-- **random leakage**
-  - weak lineages receive inflow
-  - collapse is softened
-  - diversity is better preserved
+But that raises a new danger: once the start is heterogeneous, it becomes easy to call every later inequality “emergent” when in fact some of it was simply inherited from the draw.
 
-- **mixed leakage**
-  - diffusion and amplification compete
-  - the system settles into an intermediate regime
+That sort of sloppiness is not permitted.
 
-- **status-weighted leakage**
-  - informal reproduction reinforces dominant lineages
-  - collapse accelerates
-  - diversity declines more rapidly
+Initial heterogeneity is not yet hierarchy. It is merely variation. The question is whether bounded cultural tightening takes ordinary variation and hardens it into lineage fate.
 
-### 5. Signal alignment matters even when leakage mixture is held fixed
+## The real question now
 
-With leakage rate and mixture held constant:
+The question is no longer whether the system can compress male-line diversity. It plainly can.
 
-- **independent informal signal (`corr = 0.0`)**
-  - preserves the highest entropy
-  - preserves the highest effective lineage count
-  - stabilizes the largest number of active lineages
+The question is whether a bounded interval of increased filtering, understood as tighter memetic and institutional coherence, can push a broad, mildly heterogeneous system into a lower-entropy state that then alters its later response to perturbation.
 
-- **partial alignment (`corr = 0.5`)**
-  - yields an intermediate steady state
-  - reduces diversity relative to the independent case
+In blunt terms:
+- does the system become brittle because it has been compressed?
+- does pruning lag the forcing window?
+- does bounded tightening convert mild stochastic differences into durable stratification?
+- does reduced diversity become harder to escape once the system has narrowed?
 
-- **full alignment (`corr = 1.0`)**
-  - produces the strongest compression
-  - yields the lowest long-run diversity of the three
+That is the real test.
 
-The decisive variable is therefore not leakage alone, but whether the informal channel samples the same signal as the formal system.
+## Topological signatures to track
 
-### 6. Bounded compression can be made the dominant event
+The model is now being asked not just for lower diversity, but for a topology:
 
-Later versions moved beyond simple continuous thinning and asked whether a bounded interval of tighter institutional filtering could become the main compression event.
+- bounded compression
+- slope steepening
+- knees
+- pruning lag
+- survivor concentration
+- plateau versus continued collapse
+- change in the derivative of inequality
+- persistence or rebound after the compression interval
 
-With healthier initialization and milder baseline fragility, the model now produces runs in which the bounded window, rather than generation-zero pathology, does most of the work.
+The field already gives shape classes:
+- bounded paternal compression
+- no comparable maternal collapse
+- sparse survivor set
+- later survivor fan-out
 
-### 7. Initial-condition hygiene matters
+The question is whether this machine can emit something recognizably similar.
 
-Earlier versions exposed a failure mode in which the system began life already too close to the fragility threshold. That produced misleading early collapse.
+## Metrics that now matter
 
-This has now been corrected by:
-- broader initial ecology
-- mild heterogeneous starts
-- explicit tracking of whether later inequality is merely inherited from the initial draw
+### 1. Pruning lag
 
-The result is a cleaner distinction between ordinary variation and later structural amplification.
+If the steepest pruning occurs exactly during the forcing window, then the window is merely forcing the system.
 
-### 8. Hysteresis is plausible, but currently partial
+If the steepest pruning occurs after the window, then the system has stored fragility.
 
-The current thresholded damage law is the first hysteresis version that behaves like a real state variable rather than theatrical fog.
+That is worth knowing.
 
-It is interpreted as reduced recoverability under exceptional compression:
+### 2. Survivor fan-out
+
+Not just low entropy, but concentrated survivors:
+- top-1 share
+- top-3 share
+- top-5 share
+- final rank-size curve
+
+### 3. Survival conditional on initial position
+
+This is the nastier metric, and probably the more interesting one.
+
+Divide the initial distribution into lower, middle, and upper thirds.
+Then ask:
+- how often does each group survive?
+- how much final share does each group command?
+
+If bounded tightening turns mild initial variation into very sharp stratification of survival odds, then one can say, honestly, that the cultural machinery has converted ordinary variation into lineage fate.
+
+### 4. Amplification rather than mere outcome
+
+Do not merely measure final inequality.
+Measure amplification.
+
+For example:
+- initial top-1 share vs final top-1 share
+- initial spread vs final spread
+- rank correlation between initial size and final outcome
+- survival odds by initial tercile
+
+The question is not whether inequality exists. Of course it does.
+The question is whether the social machine changes its slope, memory, and stickiness.
+
+### 5. Damage behavior
+
+If damage is present, it must be inspected as a state variable rather than assumed to be meaningful.
+
+Relevant checks:
+- final damage
+- max damage
+- whether damage saturates uselessly
+- whether damage reduces rebound
+- whether damage actually delays pruning rather than merely deepening concentration
+- whether the placement of damage in the transfer function changes behavior materially
+
+## Damage term: what it is allowed to mean
+
+If a damage term enters the model, it is not to mean generic badness, hidden mortality, or melodramatic injury. It must mean something narrower and more defensible.
+
+The strongest interpretation so far is this:
+
+Damage is accumulated loss of recoverability in the male-line social-ecological system, arising from prior compression of lineage diversity.
+
+That loss of recoverability can stand in for several concrete things that share the same dynamical property: they do not reset immediately when external pressure relaxes.
+
+These include:
+- weaker alliance options
+- thinner marriage prospects
+- reduced lineage legitimacy
+- poorer continuity of resource transmission
+- lower network redundancy
+- increased sensitivity to perturbation after compression
+
+But the sharpest interpretation is this:
+
+### Damage as cultural overfitting
+
+A tightly structured male-line society may become very good at preserving its current hierarchy and very bad at recovering breadth once that breadth has been lost.
+
+In that sense the system overfits to its own reduced diversity.
+
+That is not mystical. It is engineering. A controller can become highly competent at maintaining one regime and highly incompetent at escaping it. The more tightly tuned it is to preserving current winners, the worse it becomes at re-opening lineage opportunity once redundancy has been reduced.
+
+So if damage is added, it should act as:
 - accumulated rigidity
-- reduced re-diffusion
-- slower reopening of lineage opportunity
+- reduced capacity for re-diffusion
+- slower recovery after compression
+- greater stickiness of inequality
 
-Current result:
-- bounded compression is real
-- survivor concentration remains strong
-- some rebound is reduced
-- but durable post-window lock-in has **not** yet been demonstrated
+That is the right interpretation because it links the symbolic and biological sides without pretending they are literally the same substance.
 
-So the current honest claim is **partial scar**, not grand irreversible ruin.
+The symbolic machine compresses lineages.
+Compression lowers redundancy.
+Lower redundancy makes the system less forgiving.
+Then the symbolic machine reads that narrowed state back as natural order and tightens further.
 
----
+That is a nasty little loop, and it sounds more like history than either noble savages or instant horse-borne apocalypse.
 
-## Interpretation
+## What v0.9, v0.10, and v0.11 now show
 
-The system now has several interacting dynamical layers:
+### v0.9
 
-- mean-field filtering -> global compression
-- thresholded fragility -> local positive feedback and clustered collapse
-- leakage -> cross-lineage transport
-- signal alignment -> determines whether informal reproduction diffuses or reinforces formal inequality
-- bounded institutional tightening -> finite interval of stronger compression
-- initial-position amplification -> tests whether ordinary variation hardens into lineage fate
-- thresholded damage / hysteresis -> reduced recoverability after exceptional compression
+Thresholded damage acting directly on persistence / fragility gives the best current behavioral result.
 
-The key result so far is this:
+It no longer saturates to 1.0 in every run. Damage remains an interior state variable, bounded compression remains window-dominant, survivor concentration remains strong, and the post-window result is best described as partial scar rather than durable lock-in.
 
-> The long-run behavior of lineage diversity depends not only on formal reproductive constraints, but on the structure of informal reproduction, the alignment between formal and informal signals, and whether a bounded interval of tightening pushes the system into a state from which breadth is harder to recover.
+### v0.10
 
-More sharply:
+Damage moved out of fragility and into suppression of the diffusive informal channel.
 
-> Informal reproduction is not inherently egalitarian. If it follows the same signal as formal reproduction, it amplifies inequality. If it is sufficiently uncorrelated, it stabilizes diversity.
+This was conceptually cleaner, because it matched the overfitting / reduced-recovery reading more directly.
 
-And more sharply still:
+But it was behaviorally too weak.
+At present scale, the leakage channel is too marginal to carry the burden of hysteresis by itself.
 
-> Bounded compression can be made the dominant event. The harder question is whether compressed systems merely rebound afterward, or whether they become overfit to their own reduced diversity and therefore harder to reopen.
+### v0.11
 
-That last question remains live.
+A restrained hybrid, with damage acting mostly on re-diffusion and only modestly on fragility.
 
----
+This improved on v0.10 but still did not beat v0.9.
 
-## Note on “damage”
+## Current ranking
 
-If a damage term appears in the model, it does **not** mean hidden death, generic badness, or melodramatic injury.
+At present:
 
-It is a compressed state variable for reduced recoverability after exceptional compression.
+- v0.9 is the best current model family
+- v0.11 is informative but inferior
+- v0.10 is the useful negative control
 
-The sharpest current reading is cultural overfitting:
+So the current unpleasant lesson is:
 
-- the system becomes better at preserving its current hierarchy
-- and worse at regenerating breadth once breadth has been lost
+A cleaner recovery-channel interpretation of hysteresis is not strong enough by itself. The best current match requires damage to affect persistence more directly.
 
-That is the only interpretation under which the term is worth keeping.
+That is uglier than the more elegant story, and likely closer to history.
 
----
+## Current honest result
 
-## Current status
+The current system produces:
+- bounded compression
+- concentrated survivors
+- some hysteresis
+- but still substantial post-window re-diffusion
 
-Exploratory model with working dynamics.
+So the machine now appears to know how to compress and leave a scar, but not yet how to stay seriously hurt.
 
-Version sketch:
+## Working hypothesis
 
-- `v0.3` — mean-field + noise, smooth compression
-- `v0.4` — threshold, uneven collapse
-- `v0.5` — shaped fragility, clustered pruning
-- `v0.6` — leakage / EPP introduces competing flow and three regimes
-- `v0.7` — dual-signal model shows that signal alignment systematically shifts long-run diversity
-- `v0.8` — bounded compression introduced; exposed brittle initialization pathology
-- `v0.8b` — healthier initial ecology, mild heterogeneity, amplification hygiene
-- `v0.9` — thresholded hysteresis / damage term interpreted as reduced recoverability under exceptional compression
+The strongest form of the current hypothesis is this:
 
-The current model demonstrates:
+A bounded interval of cultural tightening does not merely reduce diversity while active. It changes the transfer function by which male lines persist. As entropy falls, redundancy falls. As redundancy falls, fragility rises. Once the system is sufficiently compressed, the same perturbations become more dangerous, and mild initial variation is more easily converted into durable pruning and survivor concentration.
 
-- punctuated-looking lineage compression can emerge from internal dynamics
-- bounded compression can dominate the trajectory
-- survivor concentration can remain strong
-- mild initial variation need not simply dictate the ending
-- partial hysteresis is plausible
+If a damage term is required, it should not deepen the fall by magic. It should reduce recoverability and make the compressed state harder to escape.
 
-The current model does **not yet** demonstrate:
-- strong post-window pruning lag
-- durable post-window lock-in
-- irreversible loss of recoverability
+Current experiments suggest that this reduced recoverability is not expressed only through weaker informal re-diffusion. It also seems to make marginality itself stickier.
 
-So the present claim is bounded compression plus partial scar, not final proof of deep hysteretic trapping.
+That is a stronger and uglier result, and sounds more like history.
 
----
+## Discipline for the next pass
 
-## Current next step
+The next model must satisfy these conditions:
 
-The next serious question is not whether compression can occur. It can.
+- the pre-window world must be broad enough that diversity is not immediately self-eroding
+- the fragility threshold must represent real marginality, not the default starting condition
+- initial heterogeneity must be mild, visible, and reported
+- results must be judged over an ensemble, not by one dramatic run
+- damage must remain an informative state variable rather than saturating trivially
+- rebound versus persistence must be measured explicitly
+- placement of hysteresis in the transfer function must be treated as a first-order modeling choice
 
-The next question is whether the memory term should act less like extra fragility and more like impaired recovery or reduced re-diffusion after compression.
+Or, more bluntly:
 
-In other words:
-- does reduced diversity merely concentrate survivors,
-- or does it alter the derivative of recovery itself?
-
-That is the current frontier.
-
----
-
-## Structure
-
-- `model/` — simulation code
-- `notes/` — working notes and logs
-- `papers/` — reference PDFs
-- `figures/` — generated plots
-
----
-
-## Figures
-
-Figures are generated from simulation code. Selected figures (`sim_*.png`) are versioned when they correspond to specific model states and comparison points.
+Do not confuse initial variation with emergent structure.
+Do not confuse amplification with creation.
+Do not confuse one vivid run with a regime.
+Do not confuse a decorative memory term with a real scar.
+Do not confuse elegance of interpretation with behavioral adequacy.

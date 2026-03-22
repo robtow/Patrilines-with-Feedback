@@ -39,7 +39,11 @@ FRAGILITY_GAIN = 0.90
 DAMAGE_CONC_THRESHOLD = 0.45
 DAMAGE_ACCUM_GAIN = 0.035
 DAMAGE_DECAY = 0.05
-DAMAGE_ALPHA_GAIN = 0.75
+
+# v0.11 hybrid:
+# damage mainly suppresses re-diffusion, but also adds a small persistence penalty.
+DAMAGE_DIFFUSION_SUPPRESSION = 0.80
+DAMAGE_ALPHA_GAIN = 0.30
 
 # Initial heterogeneity
 INITIAL_HETEROGENEITY_SIGMA = 0.20
@@ -48,8 +52,8 @@ INITIAL_HETEROGENEITY_SIGMA = 0.20
 SAMPLE_RUNS = 8
 RANDOM_SEED = 42
 
-FIGURE_PATH = Path("figures/sim_v0_9.png")
-SUMMARY_PATH = Path("notes/v0_9_summary.json")
+FIGURE_PATH = Path("figures/sim_v0_11.png")
+SUMMARY_PATH = Path("notes/v0_11_summary.json")
 
 
 # -----------------------------
@@ -220,6 +224,8 @@ def run_once() -> dict:
     skew_hist = []
     concentration_hist = []
     damage_hist = []
+    epp_random_weight_hist = []
+    epp_status_weight_hist = []
 
     damage = 0.0
 
@@ -231,11 +237,13 @@ def run_once() -> dict:
         concentration = np.clip(concentration, 0.0, 1.0)
 
         # Damage is scar from exceptional compression, not a tax on ordinary inequality.
-        # It accumulates only above a tolerated broad-regime concentration level.
         excess_concentration = max(0.0, concentration - DAMAGE_CONC_THRESHOLD)
         damage = damage + DAMAGE_ACCUM_GAIN * excess_concentration - DAMAGE_DECAY * damage
         damage = float(np.clip(damage, 0.0, 1.0))
 
+        # v0.11 hybrid:
+        # concentration still drives fragility;
+        # damage adds a modest persistence penalty, not a hammer.
         effective_alpha = (
             BASE_FRAGILITY_ALPHA
             + FRAGILITY_GAIN * concentration
@@ -257,9 +265,16 @@ def run_once() -> dict:
         attractiveness = compute_attractiveness(counts)
         uniform_probs = np.ones(NUM_LINEAGES, dtype=float) / NUM_LINEAGES
 
+        # Damage suppresses diffusion / random redistribution.
+        effective_random_weight = (1.0 - EPP_STATUS_WEIGHT) * (
+            1.0 - DAMAGE_DIFFUSION_SUPPRESSION * damage
+        )
+        effective_random_weight = float(np.clip(effective_random_weight, 0.0, 1.0))
+        effective_status_weight = 1.0 - effective_random_weight
+
         epp_probs = (
-            EPP_STATUS_WEIGHT * attractiveness
-            + (1.0 - EPP_STATUS_WEIGHT) * uniform_probs
+            effective_status_weight * attractiveness
+            + effective_random_weight * uniform_probs
         )
         epp_probs = normalize(epp_probs)
 
@@ -276,6 +291,8 @@ def run_once() -> dict:
         skew_hist.append(float(skew))
         concentration_hist.append(float(concentration))
         damage_hist.append(float(damage))
+        epp_random_weight_hist.append(float(effective_random_weight))
+        epp_status_weight_hist.append(float(effective_status_weight))
 
     final_counts = counts.copy()
 
@@ -286,6 +303,8 @@ def run_once() -> dict:
     skew = np.array(skew_hist)
     concentration = np.array(concentration_hist)
     damage_series = np.array(damage_hist)
+    epp_random_weight_series = np.array(epp_random_weight_hist)
+    epp_status_weight_series = np.array(epp_status_weight_hist)
 
     d_neff = first_difference(neff)
     d_active = first_difference(active)
@@ -327,6 +346,8 @@ def run_once() -> dict:
         "initial_std_count": float(initial_counts.std()),
         "final_damage": float(damage_series[-1]),
         "max_damage": float(damage_series.max()),
+        "final_epp_random_weight": float(epp_random_weight_series[-1]),
+        "min_epp_random_weight": float(epp_random_weight_series.min()),
         **terciles,
     }
 
@@ -341,6 +362,8 @@ def run_once() -> dict:
         "skew": skew,
         "concentration": concentration,
         "damage": damage_series,
+        "epp_random_weight": epp_random_weight_series,
+        "epp_status_weight": epp_status_weight_series,
         "d_neff": d_neff,
         "d_active": d_active,
         "summary": summary,
@@ -386,6 +409,7 @@ def run_experiments() -> dict:
         "skew_mean": stack("skew").mean(axis=0),
         "concentration_mean": stack("concentration").mean(axis=0),
         "damage_mean": stack("damage").mean(axis=0),
+        "epp_random_weight_mean": stack("epp_random_weight").mean(axis=0),
         "d_neff_mean": stack("d_neff").mean(axis=0),
         "d_active_mean": stack("d_active").mean(axis=0),
         "summary_stats": summary_stats,
@@ -423,6 +447,7 @@ def save_summary_json(results: dict) -> None:
             "DAMAGE_CONC_THRESHOLD": DAMAGE_CONC_THRESHOLD,
             "DAMAGE_ACCUM_GAIN": DAMAGE_ACCUM_GAIN,
             "DAMAGE_DECAY": DAMAGE_DECAY,
+            "DAMAGE_DIFFUSION_SUPPRESSION": DAMAGE_DIFFUSION_SUPPRESSION,
             "DAMAGE_ALPHA_GAIN": DAMAGE_ALPHA_GAIN,
             "INITIAL_HETEROGENEITY_SIGMA": INITIAL_HETEROGENEITY_SIGMA,
         },
@@ -497,6 +522,7 @@ def plot_results(results: dict, samples: list[dict]) -> None:
     ax.plot(gens, results["alpha_mean"], label="Fragility alpha")
     ax.plot(gens, results["concentration_mean"], label="Concentration")
     ax.plot(gens, results["damage_mean"], label="Damage")
+    ax.plot(gens, results["epp_random_weight_mean"], label="EPP random weight")
     ax.plot(gens, results["skew_mean"], label="Skew")
     ax.axvspan(WINDOW_START, WINDOW_END, alpha=0.12)
     ax.set_title("System state")
@@ -546,6 +572,8 @@ def plot_results(results: dict, samples: list[dict]) -> None:
         "entropy_loss_post",
         "final_damage",
         "max_damage",
+        "final_epp_random_weight",
+        "min_epp_random_weight",
     ]:
         val = ss[key]
         print(
