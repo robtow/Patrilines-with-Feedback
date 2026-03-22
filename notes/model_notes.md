@@ -25,6 +25,7 @@ State variables:
 - signal alignment between formal and informal channels shifts long-run diversity monotonically
 - bounded compression can now be made the dominant event rather than an afterthought
 - hysteresis can be made nontrivial without saturating into nonsense
+- where hysteresis enters the system matters more than the mere existence of hysteresis
 
 ## Current regimes
 
@@ -165,6 +166,7 @@ Relevant checks:
 - whether damage saturates uselessly
 - whether damage reduces rebound
 - whether damage actually delays pruning rather than merely deepening concentration
+- whether the placement of damage in the transfer function changes behavior materially
 
 ## Damage term: what it is allowed to mean
 
@@ -209,20 +211,44 @@ Then the symbolic machine reads that narrowed state back as natural order and ti
 
 That is a nasty little loop, and it sounds more like history than either noble savages or instant horse-borne apocalypse.
 
-## What v0.9 now shows
+## What v0.9, v0.10, and v0.11 now show
 
-The current thresholded damage law is the first hysteresis version that behaves like a real state variable rather than theatrical fog.
+### v0.9
 
-It no longer saturates to 1.0 in every run. Damage now varies modestly across runs and remains in a nontrivial interior range.
+Thresholded damage acting directly on persistence / fragility gives the best current behavioral result.
 
-Current pattern:
-- broad initial ecology remains healthy
-- bounded compression is dominated by the forcing window
-- survivor concentration remains strong
-- initial-final correlation remains low
-- damage now reduces some rebound without becoming a hidden mortality switch
+It no longer saturates to 1.0 in every run. Damage remains an interior state variable, bounded compression remains window-dominant, survivor concentration remains strong, and the post-window result is best described as partial scar rather than durable lock-in.
 
-But the result is still only partial scar, not yet durable post-window damage.
+### v0.10
+
+Damage moved out of fragility and into suppression of the diffusive informal channel.
+
+This was conceptually cleaner, because it matched the overfitting / reduced-recovery reading more directly.
+
+But it was behaviorally too weak.
+At present scale, the leakage channel is too marginal to carry the burden of hysteresis by itself.
+
+### v0.11
+
+A restrained hybrid, with damage acting mostly on re-diffusion and only modestly on fragility.
+
+This improved on v0.10 but still did not beat v0.9.
+
+## Current ranking
+
+At present:
+
+- v0.9 is the best current model family
+- v0.11 is informative but inferior
+- v0.10 is the useful negative control
+
+So the current unpleasant lesson is:
+
+A cleaner recovery-channel interpretation of hysteresis is not strong enough by itself. The best current match requires damage to affect persistence more directly.
+
+That is uglier than the more elegant story, and likely closer to history.
+
+## Current honest result
 
 The current system produces:
 - bounded compression
@@ -240,7 +266,9 @@ A bounded interval of cultural tightening does not merely reduce diversity while
 
 If a damage term is required, it should not deepen the fall by magic. It should reduce recoverability and make the compressed state harder to escape.
 
-That is a much stronger claim than “war is unnecessary.”
+Current experiments suggest that this reduced recoverability is not expressed only through weaker informal re-diffusion. It also seems to make marginality itself stickier.
+
+That is a stronger and uglier result, and sounds more like history.
 
 ## Discipline for the next pass
 
@@ -252,6 +280,7 @@ The next model must satisfy these conditions:
 - results must be judged over an ensemble, not by one dramatic run
 - damage must remain an informative state variable rather than saturating trivially
 - rebound versus persistence must be measured explicitly
+- placement of hysteresis in the transfer function must be treated as a first-order modeling choice
 
 Or, more bluntly:
 
@@ -259,3 +288,4 @@ Do not confuse initial variation with emergent structure.
 Do not confuse amplification with creation.
 Do not confuse one vivid run with a regime.
 Do not confuse a decorative memory term with a real scar.
+Do not confuse elegance of interpretation with behavioral adequacy.
