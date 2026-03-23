@@ -112,7 +112,29 @@ Further restrictions now clear from experiment:
 - a simple basin slack gradient is not enough by itself
 - window-driven local closure helps but is not enough by itself
 - window-gated local marginality helps more
-- the next honest move is likely stronger pre-window resilience for the later basin
+- the next honest move in the scalar branch was stronger pre-window resilience for the later basin
+
+## Eligibility-graph rail
+
+The eligibility-graph branch is now admissible, but only under strict discipline.
+
+What current results permit me to say:
+- internal admissibility structure can matter a great deal
+- a baseline graph must be genuinely open, or collapse is front-loaded
+- staged internal tightening is better than a one-shot graph switch
+- the graph branch is a legitimate structural family, not decorative machinery
+
+What current results do not permit me to say:
+- that the graph branch has solved local timing
+- that fixed class membership is sufficient
+- that more graph structure should be added freely
+
+So the rail is:
+
+- keep graph structure tiny
+- keep baseline openness genuinely high
+- prefer staged narrowing over baseline harshness
+- admit further graph elaboration only if it improves local ordering under the sustained-pruning metric
 
 ## What the current results permit
 
@@ -131,12 +153,13 @@ It also supports a sharper methodological claim:
 - `v0.13` shows that Daisyworld local timing failure is real and not cured by metric correction or slack alone
 - `v0.14` shows that window-driven local closure is part of the answer
 - `v0.15` shows that window-gated local marginality is also part of the answer
+- `v0.17-v0.19` show that admissibility structure is a legitimate mechanism family and that staged graph tightening is better than a one-shot graph switch
 
 So the model is currently licensed to speak of:
 - partial hysteresis,
 - real topological improvement,
 - incomplete local calibration,
-- and the likely need for stronger late-basin pre-window buffering.
+- and the emergence of a promising nested-topology graph branch.
 
 It is not yet licensed to claim triumphant irreversible lock-in.
 
@@ -152,4 +175,4 @@ The right use of the literature here is narrow and hard-headed:
 
 A blunter version, for my own future reference:
 
-> The literature does not hand me a Bronze Age fragility constant. It does, however, tell me that leakage should probably be low but real, that male-line filtering institutions commonly co-occur, and that the empirical target is not merely collapse but a particular topology: bounded compression plus survivor burst. It also tells me not to begin the machine with everyone already hanging over the cliff and then pretend later brittleness is profound. And if I add a damage term, it had better mean reduced recoverability and institutional overfitting, not stage fog. At present the machine is allowed to claim partial scar, not grand irreversible ruin. The present uglier lesson is that hysteresis seems to matter most when it makes persistence itself stickier, not merely when it weakens informal recovery at the margin. The present topological lesson is that some of the global shape was probably missing archipelago rather than missing scalar scar. The present Daisyworld lesson is that local timing is beginning to respond to closure plus marginality, but the later basin still needs more pre-window protection. That is enough to keep the model from wandering off into just-so theater.
+> The literature does not hand me a Bronze Age fragility constant. It does, however, tell me that leakage should probably be low but real, that male-line filtering institutions commonly co-occur, and that the empirical target is not merely collapse but a particular topology: bounded compression plus survivor burst. It also tells me not to begin the machine with everyone already hanging over the cliff and then pretend later brittleness is profound. And if I add a damage term, it had better mean reduced recoverability and institutional overfitting, not stage fog. At present the machine is allowed to claim partial scar, not grand irreversible ruin. The present uglier lesson is that hysteresis seems to matter most when it makes persistence itself stickier, not merely when it weakens informal recovery at the margin. The present topological lesson is that some of the global shape was probably missing archipelago rather than missing scalar scar. The present graph lesson is that admissibility topology is real, but only if the baseline world is genuinely open and tightening propagates in stages. That is enough to keep the model from wandering off into just-so theater.

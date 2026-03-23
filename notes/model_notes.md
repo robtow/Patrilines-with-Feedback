@@ -18,7 +18,8 @@ State variables:
 
 Topological structure:
 - single-basin family
-- multi-basin Daisyworld family with weak coupling and staggered local windows
+- scalar/topological Daisyworld family with weak coupling and staggered local windows
+- nested-topology eligibility-graph family with internal admissibility classes
 
 ## Main results so far
 
@@ -31,7 +32,9 @@ Topological structure:
 - hysteresis can be made nontrivial without saturating into nonsense
 - where hysteresis enters the system matters more than the mere existence of hysteresis
 - topology matters more than the single-basin toy admitted
-- Daisyworld local timing failure is real, but closure plus local marginality now begin to separate local timing
+- Daisyworld local timing failure is real, but closure plus local marginality begin to separate local timing
+- admissibility structure is real
+- staged tightening inside the graph works better than one-shot graph switching
 
 ## Current regimes
 
@@ -268,7 +271,7 @@ A cleaner recovery-channel interpretation of hysteresis is not strong enough by 
 
 That is uglier than the more elegant story, and likely closer to history.
 
-## What v0.12-v0.15 Daisyworld now show
+## What v0.12-v0.16 scalar Daisyworld now show
 
 ### v0.12
 
@@ -319,18 +322,62 @@ Current reading:
 - local marginality helps more
 - basin 1 now moves later in a real way
 - basin 2 still erodes too early
-- the late basin still lacks enough pre-window buffering
 
-So the next missing ingredient is becoming clearer:
-- not merely more in-window harshness
-- but stronger protection of late-basin breadth before its own window arrives
+### v0.16
+
+v0.16 added:
+- basin-specific baseline fragility buffering
+
+This improved coarse local staggering, especially under the single-step metric, but sustained local delay remained incomplete.
+
+Current scalar Daisyworld reading:
+- closure matters
+- local marginality matters
+- pre-window buffering matters
+- but the later basin still does not truly wait its turn
+
+## What v0.17-v0.19 now show
+
+### v0.17
+
+The first eligibility-graph implementation was too harsh at baseline.
+
+The important point is not that the graph failed, but how it failed:
+- the baseline world was not open enough
+- the machine collapsed too early
+- admissibility structure was being imposed from generation zero too strongly
+
+### v0.18
+
+Softening the open graph rehabilitated the branch.
+
+This showed:
+- the graph can matter structurally without poisoning the baseline
+- bounded compression can remain the main event
+- the graph family is a legitimate mechanism family, not ornament
+
+### v0.19
+
+Staging tightening inside the graph improved the branch further.
+
+This showed:
+- one-shot graph switching was too coarse
+- phased internal tightening produces more credible sustained local timing
+- nested local topology matters
+
+Current graph-branch reading:
+- admissibility structure is real
+- staged tightening is better than one-shot tightening
+- the remaining missing thing is no longer obviously more scalar force
+- but local ordering is still incomplete, so the branch remains promising rather than settled
 
 ## Current ranking
 
 At present:
 
 - best single-basin family: v0.9
-- best architectural advance: v0.15 Daisyworld family
+- best scalar/topological Daisyworld family: v0.15
+- most promising nested-topology branch: v0.19
 
 Those are not contradictory. They are different accomplishments.
 
@@ -345,16 +392,17 @@ The project now supports these claims:
 - single-basin mean-field structure was a major topological oversimplification
 - multi-basin Daisyworld makes the global shape more plausible
 - local closure plus local marginality begin to produce local timing separation
+- admissibility structure is a real mechanism family
+- staged internal tightening outperforms one-shot graph switching
 - but local basin timing and durable post-window scar remain unsolved
-- and the late basin still lacks enough pre-window buffering
 
 So the machine now appears to know:
 - how to compress,
 - how to leave a scar,
 - how topology changes the global appearance,
-- and how local closure plus local marginality start to matter,
+- and how internal admissibility structure begins to matter,
 
-but not yet how to keep the late basin broad until its own tightening interval arrives.
+but not yet how to achieve clean local staggering without new complexity pressure.
 
 ## Working hypothesis
 
@@ -368,13 +416,9 @@ Some of the apparent global bounded-compression shape may arise more naturally f
 
 If so, some of the scalar memory terms in the single-basin model were compensating for missing topology.
 
-Current Daisyworld experiments add a third claim:
+Current graph-branch experiments add a third claim:
 
-If basin topology is to do more than smooth the aggregate curve, the local tightening window must alter both local closure and local marginality.
-
-Current v0.15 results add a fourth claim:
-
-Even that is not yet enough. The later basin likely needs stronger pre-window resilience if truly staggered local timing is to emerge.
+If basin topology is to do more than smooth the aggregate curve, tightening may need to operate by phased narrowing of admissible connectivity inside the basin, not merely by scalar closure or scalar pressure.
 
 ## Discipline for the next pass
 
@@ -389,7 +433,7 @@ The next model must satisfy these conditions:
 - placement of hysteresis in the transfer function must be treated as a first-order modeling choice
 - basin structure must earn its keep by improving local as well as aggregate timing
 - local closure must be tested directly rather than smuggled in as vague extra pressure
-- late-basin pre-window resilience must now be treated as a first-order issue
+- graph elaboration must now clear a higher bar than earlier scalar refinements
 
 Or, more bluntly:
 

@@ -1,4 +1,4 @@
-# v0.12-v0.15 Daisyworld Notes
+# v0.12-v0.19 Daisyworld Notes
 
 ## Purpose
 
@@ -6,7 +6,8 @@ v0.12 was the first architectural move beyond the single-basin mean-field world.
 
 The goal was not “more realism” in the vulgar sense. The goal was to ask whether some of the observed global bounded-compression shape arises more naturally once lineages inhabit several partially closed reproductive fields rather than one universal bowl.
 
-v0.13, v0.14, and v0.15 then tested what the basins were still missing locally.
+v0.13 through v0.16 then tested what the scalar Daisyworld family was still missing locally.
+v0.17 through v0.19 opened the graph branch inside those basins.
 
 ## Architecture
 
@@ -95,14 +96,61 @@ Current reading:
 - basin 1 now moves later in a real way
 - basin 2 still erodes too early
 
-So the current problem is no longer “nothing local matters.”
+## What v0.16 tested
 
-The problem is now sharper:
-- the later basin still lacks enough pre-window buffering
+v0.16 added:
+- basin-specific baseline fragility buffering
+
+### v0.16 result
+
+The later basin was protected better under the coarse metric, but sustained local delay still did not stagger cleanly.
+
+So the scalar Daisyworld family remained informative and real, but still incomplete.
+
+## Graph branch after v0.16
+
+The next structural move after scalar Daisyworld refinement was the eligibility-graph branch.
+
+Its history matters.
+
+### v0.17
+
+v0.17 showed that the graph idea was real, but baseline admissibility was too restrictive.
+
+This was a useful negative result:
+- the graph mattered strongly
+- but the baseline world was too socially sorted from generation zero
+
+### v0.18
+
+v0.18 rehabilitated the branch by making the baseline graph genuinely open.
+
+This showed:
+- the graph could matter without front-loading collapse
+- bounded compression could remain the main event
+- the graph family was a legitimate structural family rather than decoration
+
+### v0.19
+
+v0.19 staged internal graph tightening.
+
+This showed:
+- staged internal tightening performs better than one-shot graph switching
+- phased narrowing inside the basin is a more plausible structural move
+- local sustained timing improves partially without reintroducing early-collapse pathology
+
+So the current state of the inquiry is now split three ways:
+
+- single-basin hysteresis family
+- scalar/topological Daisyworld family
+- nested-topology eligibility-graph family
+
+The graph branch is now a real part of the repo’s conceptual structure.
+It is not yet the winning family, but it has earned continued attention.
 
 ## Current interpretation
 
-Daisyworld now supports four claims:
+Daisyworld now supports several claims:
 
 1. The archipelago matters.
    Some global bounded-compression shape is more naturally produced in several partially closed basins than in one universal bowl.
@@ -116,8 +164,16 @@ Daisyworld now supports four claims:
 4. Local marginality matters.
    A basin’s tightening interval must also change how harshly near-edge lineages are treated.
 
+5. Admissibility topology matters.
+   A basin may need internal structured connectivity, not merely scalar closure.
+
+6. Staged tightening matters.
+   The graph should not switch all at once; narrowing that propagates in phases performs better.
+
 What remains missing is:
-- stronger protection of late-basin breadth before its own tightening interval arrives
+- clean local ordering under the sustained-pruning metric
+- durable post-window persistence
+- a principled stopping point before the graph branch drifts into overfitting
 
 ## Immediate lesson
 
@@ -127,7 +183,6 @@ v0.12 was the first honest correction of that.
 v0.13 showed that local timing would not be saved by prettier metrics or simple slack gradients.
 v0.14 showed that local closure is part of the answer.
 v0.15 showed that local marginality is also part of the answer.
+v0.17-v0.19 showed that internal admissibility structure is a real nested-topology branch, and that staged tightening is better than one-shot tightening.
 
-The next serious Daisyworld step is therefore:
-- not more generic in-window harshness
-- but more honest pre-window buffering for the later basin
+The next serious step, if any, must therefore be judged against a much higher bar than earlier scalar refinements.

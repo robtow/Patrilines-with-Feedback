@@ -12,11 +12,9 @@ The aim is structural demonstration, not historical reconstruction.
 
 More specifically, the project asks whether bounded intervals of tighter cultural and institutional filtering can compress male-line diversity, whether that compression can alter later system behavior by reducing recoverability, and whether some of the observed global shape is better understood as the aggregate behavior of several partially coupled social basins rather than one universal competitive field.
 
----
+## Current model families
 
-## Current Model Families
-
-The project now includes two architectural families.
+The project now includes three architectural families.
 
 ### 1. Single-basin family
 
@@ -46,11 +44,11 @@ This is the original mean-field line of work. It includes:
   - not hidden mortality
   - not generic “badness”
 
-### 2. Multi-basin Daisyworld family
+### 2. Scalar/topological Daisyworld family
 
 This is the first topological step beyond the single-basin oversimplification.
 
-It now includes:
+It includes:
 
 - three partially coupled social basins
 - local lineage dynamics within each basin
@@ -64,7 +62,20 @@ It now includes:
 
 This is not geography in the map-room sense. A basin here is a partially bounded reproductive field. It may be regional, ritual, status-based, linguistic, or otherwise social.
 
----
+### 3. Nested-topology eligibility-graph family
+
+This is the first explicit attempt to represent culture as changed connectivity rather than as a mere pressure scalar.
+
+It includes:
+
+- three basins
+- three fixed internal eligibility classes per basin
+- class-based admissibility graphs inside each basin
+- distinct formal and informal traversal of those graphs
+- staged internal tightening of the graph during the window
+- the same broad basin framework used in Daisyworld, but with internal topology rather than scalar closure alone doing more of the work
+
+This branch is now a real mechanism family, not decorative machinery. It remains provisional and only partially successful.
 
 ## Tracked quantities
 
@@ -87,7 +98,7 @@ Across current versions, tracked quantities include:
 - final share by initial tercile
 - damage statistics
 
-In the Daisyworld family, additional basin-level quantities include:
+In the multi-basin families, additional basin-level quantities include:
 
 - basin-specific effective lineages
 - basin-specific active lineage counts
@@ -96,8 +107,6 @@ In the Daisyworld family, additional basin-level quantities include:
 - basin-specific rolling main-pruning times
 - basin-specific window losses
 - mean basin self-retention / closure
-
----
 
 ## What the model now shows
 
@@ -204,14 +213,15 @@ The aggregate result is cleaner:
 - window loss dominates more naturally
 - global pruning timing improves materially
 
-### 10. Daisyworld local timing is hard
+### 10. Scalar Daisyworld local timing is hard
 
-Daisyworld has now been pushed through several disciplined tests:
+Scalar Daisyworld was pushed through several disciplined tests:
 
 - a harsher local sustained-pruning metric based on rolling decline
 - a basin slack gradient
 - window-driven local closure
 - window-gated local marginality / fragility gain
+- basin-specific baseline fragility buffering
 
 These produced a sequence of useful failures and partial improvements.
 
@@ -220,14 +230,37 @@ Current lesson:
 - simple basin slack was not enough
 - window-driven closure helped
 - window-gated marginality helped more
-- the sustained local pruning metric now separates somewhat
-- but the late basin still erodes too early
+- the sustained local pruning metric began to separate somewhat
+- but the late basin still eroded too early
 
-So the current best Daisyworld reading is:
+So the best scalar Daisyworld reading became:
 
 > local closure and local marginality both matter, but the later basin still lacks enough pre-window buffering.
 
-That is a real result.
+That was a real result, but not a full solution.
+
+### 10a. Eligibility graphs appear to be a real structural family
+
+The next structural move after scalar closure was to give each basin a tiny internal eligibility graph.
+
+This was the first explicit attempt to represent culture as changed connectivity rather than as mere pressure.
+
+The sequence now looks like this:
+
+- `v0.17` showed that an eligibility graph can matter a great deal, but the first baseline graph was too restrictive and front-loaded collapse
+- `v0.18` made the baseline graph genuinely open and restored bounded compression as the main event
+- `v0.19` staged tightening inside the graph and improved sustained local timing relative to a one-shot graph switch
+
+This is a real structural gain.
+
+The graph branch now supports the claim that:
+
+> tightening inside a basin is better represented as phased narrowing of admissible connectivity than as a single scalar increase in harshness.
+
+But this remains only a partial success:
+- local staggering is improved, not solved
+- the late basin is still not cleanly latest under the sustained-pruning metric
+- rebound remains too easy
 
 ### 11. Current honest result
 
@@ -240,11 +273,9 @@ The current honest claim is:
 - partial hysteresis is plausible
 - topology clearly matters
 - but durable post-window lock-in has not yet been demonstrated
-- and Daisyworld local timing is improved only partially, not solved
+- and local basin timing is improved only partially, not solved
 
-So the current claim is bounded compression plus partial scar, with strong evidence that missing topology was part of the earlier problem, but with local basin timing and pre-window buffering still under-modeled.
-
----
+So the current claim is bounded compression plus partial scar, with strong evidence that missing topology was part of the earlier problem, but with local basin timing and post-window persistence still under-modeled.
 
 ## Interpretation
 
@@ -260,6 +291,7 @@ The system now has several interacting dynamical layers:
 - basin structure -> partially closed reproductive fields with weak coupling
 - window-driven closure -> temporary increase in local self-retention
 - window-gated marginality -> local tightening makes near-edge lineages more vulnerable
+- eligibility graphs -> phased narrowing of admissible connectivity inside a basin
 
 The key result so far is this:
 
@@ -271,11 +303,9 @@ More sharply:
 
 And more sharply still:
 
-> The next missing thing in Daisyworld appears to be stronger pre-window buffering in the later basin, not simply more in-window harshness.
+> The graph branch suggests that the remaining missing structure may be layered internal topology rather than additional scalar force.
 
 That is now a live modeling conclusion, not rhetorical embroidery.
-
----
 
 ## Note on “damage”
 
@@ -293,8 +323,6 @@ But the experiments now suggest that this overfitting is not expressed only thro
 That is a stronger and uglier result, and sounds more like history.
 
 At the same time, Daisyworld shows that some of what had been loaded onto “damage” in the single-basin model was really missing topology in disguise.
-
----
 
 ## Current status
 
@@ -316,6 +344,10 @@ Version sketch:
 - `v0.13` - local sustained-pruning metric plus basin-slack gradient; shows local timing problem is real and slack alone is insufficient
 - `v0.14` - window-driven local closure; first honest hint of local timing separation
 - `v0.15` - window-gated local fragility gain; partial sustained local separation, but late basin still erodes too early
+- `v0.16` - basin-specific baseline fragility buffering; improves coarse local staggering but not sustained late-basin delay
+- `v0.17` - first eligibility-graph Daisyworld; graph proved potent, but baseline was too restrictive and front-loaded collapse
+- `v0.18` - softened open eligibility graph; rehabilitated the graph branch by restoring bounded-window dominance
+- `v0.19` - staged eligibility graph; phased internal tightening improves sustained local timing relative to one-shot graph switching
 
 The current model demonstrates:
 
@@ -326,36 +358,33 @@ The current model demonstrates:
 - partial hysteresis is plausible
 - where hysteresis enters the system matters more than the mere existence of hysteresis
 - topology matters more than the single-basin toy allowed
-- Daisyworld local timing failure is real
-- closure plus local marginality begins to produce local timing separation
+- admissibility structure is a real mechanism family
+- staged internal tightening outperforms one-shot graph tightening
 
 The current model does **not yet** demonstrate:
 - strong post-window pruning lag
 - durable post-window lock-in
 - irreversible loss of recoverability
 - clean local staggering of basin pruning relative to local windows
-- sufficient pre-window buffering in the later basin
-
----
+- a settled winner among the scalar Daisyworld and graph branches
 
 ## Current best model families
 
 At present:
 
 - **best single-basin family:** `v0.9`
-- **best architectural advance:** `v0.15` Daisyworld family
+- **best scalar/topological Daisyworld family:** `v0.15`
+- **most promising new structural branch:** `v0.19` staged eligibility-graph Daisyworld
 
-So the repo is currently licensed to say two things at once:
+So the repo is currently licensed to say three things at once:
 
 > Thresholded hysteresis acting on persistence gives the best current single-basin match to bounded compression plus partial scar.
 
-and
+> Multi-basin Daisyworld suggests that some of the global empirical shape may arise more naturally from coupled local basins than from one universal competitive field.
 
-> Multi-basin Daisyworld suggests that some of the global empirical shape may arise more naturally from coupled local basins than from one universal competitive field, and that local closure plus local marginality are part of the missing mechanism.
+> The staged eligibility-graph branch suggests that tightening may work by phased narrowing of admissible connectivity inside those basins rather than by scalar pressure alone.
 
 Those are compatible claims.
-
----
 
 ## Current next step
 
@@ -363,16 +392,14 @@ The next serious question is no longer merely whether hysteresis exists. It does
 
 The next question is whether the best future model should:
 - remain in the `v0.9` family and refine direct persistence effects,
-- refine Daisyworld so that local basin timing becomes credible,
-- or combine the two without turning the model into soup.
+- refine scalar/topological Daisyworld so that local basin timing becomes credible,
+- or refine the graph branch without wandering into target-chasing.
 
 More sharply:
 
-> Can the late basin be kept broad until its own tightening interval arrives, so that local staggering becomes real rather than merely partial?
+> Is the remaining failure of local ordering due to missing internal graph dynamics, such as delayed class-level propagation or limited class mobility, rather than missing scalar pressure?
 
 That is the current frontier.
-
----
 
 ## Structure
 
@@ -380,8 +407,6 @@ That is the current frontier.
 - `notes/` - working notes and logs
 - `papers/` - reference PDFs
 - `figures/` - generated plots
-
----
 
 ## Figures
 
