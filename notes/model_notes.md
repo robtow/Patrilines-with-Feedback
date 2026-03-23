@@ -19,7 +19,7 @@ State variables:
 Topological structure:
 - single-basin family
 - scalar/topological Daisyworld family with weak coupling and staggered local windows
-- nested-topology eligibility-graph family with internal admissibility classes
+- nested-topology eligibility-graph family with internal admissibility classes and phased graph degradation
 
 ## Main results so far
 
@@ -35,6 +35,7 @@ Topological structure:
 - Daisyworld local timing failure is real, but closure plus local marginality begin to separate local timing
 - admissibility structure is real
 - staged tightening inside the graph works better than one-shot graph switching
+- edge-phased tightening works better than matrix-wide staged tightening
 
 ## Current regimes
 
@@ -336,7 +337,7 @@ Current scalar Daisyworld reading:
 - pre-window buffering matters
 - but the later basin still does not truly wait its turn
 
-## What v0.17-v0.19 now show
+## What v0.17-v0.20 now show
 
 ### v0.17
 
@@ -365,11 +366,21 @@ This showed:
 - phased internal tightening produces more credible sustained local timing
 - nested local topology matters
 
+### v0.20
+
+Phasing the collapse of different edge families improved the branch further still.
+
+This showed:
+- matrix-wide staged tightening was still too coarse
+- cross-class bridges must collapse on different schedules
+- edge-phased tightening is the first graph version to produce correct mean sustained basin ordering
+
 Current graph-branch reading:
 - admissibility structure is real
 - staged tightening is better than one-shot tightening
+- edge-phased tightening is better than matrix-wide staged tightening
 - the remaining missing thing is no longer obviously more scalar force
-- but local ordering is still incomplete, so the branch remains promising rather than settled
+- but rebound remains too easy and the branch still needs disciplined stopping rules
 
 ## Current ranking
 
@@ -377,7 +388,7 @@ At present:
 
 - best single-basin family: v0.9
 - best scalar/topological Daisyworld family: v0.15
-- most promising nested-topology branch: v0.19
+- best nested-topology graph family: v0.20
 
 Those are not contradictory. They are different accomplishments.
 
@@ -394,7 +405,8 @@ The project now supports these claims:
 - local closure plus local marginality begin to produce local timing separation
 - admissibility structure is a real mechanism family
 - staged internal tightening outperforms one-shot graph switching
-- but local basin timing and durable post-window scar remain unsolved
+- edge-phased internal tightening is the first graph mechanism to get mean sustained ordering right
+- but local basin timing and durable post-window scar remain unsolved in the larger sense
 
 So the machine now appears to know:
 - how to compress,
@@ -402,7 +414,7 @@ So the machine now appears to know:
 - how topology changes the global appearance,
 - and how internal admissibility structure begins to matter,
 
-but not yet how to achieve clean local staggering without new complexity pressure.
+but not yet how to deliver historical closure without inviting overfitting.
 
 ## Working hypothesis
 
@@ -418,7 +430,7 @@ If so, some of the scalar memory terms in the single-basin model were compensati
 
 Current graph-branch experiments add a third claim:
 
-If basin topology is to do more than smooth the aggregate curve, tightening may need to operate by phased narrowing of admissible connectivity inside the basin, not merely by scalar closure or scalar pressure.
+If basin topology is to do more than smooth the aggregate curve, tightening may need to operate by phased narrowing of admissible connectivity inside the basin, and perhaps by edge-specific collapse schedules rather than uniform graph switching.
 
 ## Discipline for the next pass
 
@@ -433,7 +445,7 @@ The next model must satisfy these conditions:
 - placement of hysteresis in the transfer function must be treated as a first-order modeling choice
 - basin structure must earn its keep by improving local as well as aggregate timing
 - local closure must be tested directly rather than smuggled in as vague extra pressure
-- graph elaboration must now clear a higher bar than earlier scalar refinements
+- graph elaboration must now clear a much higher bar than earlier scalar refinements
 
 Or, more bluntly:
 

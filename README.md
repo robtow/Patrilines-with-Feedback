@@ -72,10 +72,10 @@ It includes:
 - three fixed internal eligibility classes per basin
 - class-based admissibility graphs inside each basin
 - distinct formal and informal traversal of those graphs
-- staged internal tightening of the graph during the window
+- staged, and now edge-phased, internal tightening of the graph during the window
 - the same broad basin framework used in Daisyworld, but with internal topology rather than scalar closure alone doing more of the work
 
-This branch is now a real mechanism family, not decorative machinery. It remains provisional and only partially successful.
+This branch is now a real mechanism family, not decorative machinery. It remains provisional and only partially successful in the larger historical sense.
 
 ## Tracked quantities
 
@@ -250,6 +250,7 @@ The sequence now looks like this:
 - `v0.17` showed that an eligibility graph can matter a great deal, but the first baseline graph was too restrictive and front-loaded collapse
 - `v0.18` made the baseline graph genuinely open and restored bounded compression as the main event
 - `v0.19` staged tightening inside the graph and improved sustained local timing relative to a one-shot graph switch
+- `v0.20` phased the tightening of different edge families and is the first graph version to produce the correct **mean sustained basin ordering**
 
 This is a real structural gain.
 
@@ -258,9 +259,9 @@ The graph branch now supports the claim that:
 > tightening inside a basin is better represented as phased narrowing of admissible connectivity than as a single scalar increase in harshness.
 
 But this remains only a partial success:
-- local staggering is improved, not solved
-- the late basin is still not cleanly latest under the sustained-pruning metric
-- rebound remains too easy
+- local staggering is now stronger, but not beyond dispute
+- rebound remains too easy in absolute terms
+- the graph branch produces a relatively sharp sparse-winner regime
 
 ### 11. Current honest result
 
@@ -272,10 +273,11 @@ The current honest claim is:
 - mild initial variation does not simply dictate the ending
 - partial hysteresis is plausible
 - topology clearly matters
+- the graph branch now demonstrates that phased collapse of internal bridges can improve local timing
 - but durable post-window lock-in has not yet been demonstrated
-- and local basin timing is improved only partially, not solved
+- and no branch yet licenses triumphant historical overclaim
 
-So the current claim is bounded compression plus partial scar, with strong evidence that missing topology was part of the earlier problem, but with local basin timing and post-window persistence still under-modeled.
+So the current claim is bounded compression plus partial scar, with strong evidence that missing topology was part of the earlier problem, and now stronger evidence that the topology inside a basin may itself be layered and sequential rather than uniform.
 
 ## Interpretation
 
@@ -292,6 +294,7 @@ The system now has several interacting dynamical layers:
 - window-driven closure -> temporary increase in local self-retention
 - window-gated marginality -> local tightening makes near-edge lineages more vulnerable
 - eligibility graphs -> phased narrowing of admissible connectivity inside a basin
+- edge-phased tightening -> different internal bridges collapse on different schedules
 
 The key result so far is this:
 
@@ -303,7 +306,7 @@ More sharply:
 
 And more sharply still:
 
-> The graph branch suggests that the remaining missing structure may be layered internal topology rather than additional scalar force.
+> The graph branch suggests that the remaining missing structure was not additional scalar force, but timed collapse of different admissible routes inside nested local topologies.
 
 That is now a live modeling conclusion, not rhetorical embroidery.
 
@@ -348,6 +351,7 @@ Version sketch:
 - `v0.17` - first eligibility-graph Daisyworld; graph proved potent, but baseline was too restrictive and front-loaded collapse
 - `v0.18` - softened open eligibility graph; rehabilitated the graph branch by restoring bounded-window dominance
 - `v0.19` - staged eligibility graph; phased internal tightening improves sustained local timing relative to one-shot graph switching
+- `v0.20` - edge-phased eligibility graph; first graph version to produce correct mean sustained basin ordering
 
 The current model demonstrates:
 
@@ -360,13 +364,14 @@ The current model demonstrates:
 - topology matters more than the single-basin toy allowed
 - admissibility structure is a real mechanism family
 - staged internal tightening outperforms one-shot graph tightening
+- edge-phased graph tightening outperforms matrix-wide staged tightening on local ordering
 
 The current model does **not yet** demonstrate:
 - strong post-window pruning lag
 - durable post-window lock-in
 - irreversible loss of recoverability
-- clean local staggering of basin pruning relative to local windows
-- a settled winner among the scalar Daisyworld and graph branches
+- a final settled winner among the scalar Daisyworld and graph branches
+- anything like “solving history,” which would be preposterous
 
 ## Current best model families
 
@@ -374,7 +379,7 @@ At present:
 
 - **best single-basin family:** `v0.9`
 - **best scalar/topological Daisyworld family:** `v0.15`
-- **most promising new structural branch:** `v0.19` staged eligibility-graph Daisyworld
+- **best nested-topology graph family:** `v0.20`
 
 So the repo is currently licensed to say three things at once:
 
@@ -382,7 +387,7 @@ So the repo is currently licensed to say three things at once:
 
 > Multi-basin Daisyworld suggests that some of the global empirical shape may arise more naturally from coupled local basins than from one universal competitive field.
 
-> The staged eligibility-graph branch suggests that tightening may work by phased narrowing of admissible connectivity inside those basins rather than by scalar pressure alone.
+> The edge-phased eligibility-graph branch suggests that tightening may work by phased narrowing of admissible connectivity inside those basins rather than by scalar pressure alone.
 
 Those are compatible claims.
 
@@ -392,12 +397,12 @@ The next serious question is no longer merely whether hysteresis exists. It does
 
 The next question is whether the best future model should:
 - remain in the `v0.9` family and refine direct persistence effects,
-- refine scalar/topological Daisyworld so that local basin timing becomes credible,
-- or refine the graph branch without wandering into target-chasing.
+- retain `v0.15` as the best scalar/topological multi-basin family,
+- or treat `v0.20` as the leading structural branch for essay revision and future comparative work.
 
 More sharply:
 
-> Is the remaining failure of local ordering due to missing internal graph dynamics, such as delayed class-level propagation or limited class mobility, rather than missing scalar pressure?
+> Has the graph branch now earned a temporary stopping point, where documentation and essay synthesis should advance faster than additional mechanism growth?
 
 That is the current frontier.
 

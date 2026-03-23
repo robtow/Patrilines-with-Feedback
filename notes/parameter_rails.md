@@ -122,18 +122,21 @@ What current results permit me to say:
 - internal admissibility structure can matter a great deal
 - a baseline graph must be genuinely open, or collapse is front-loaded
 - staged internal tightening is better than a one-shot graph switch
+- edge-phased tightening is better than matrix-wide staged tightening
 - the graph branch is a legitimate structural family, not decorative machinery
 
 What current results do not permit me to say:
-- that the graph branch has solved local timing
-- that fixed class membership is sufficient
+- that the graph branch has solved history
+- that fixed class membership is sufficient in general
 - that more graph structure should be added freely
+- that every remaining mismatch should be answered with one more layer of cleverness
 
 So the rail is:
 
 - keep graph structure tiny
 - keep baseline openness genuinely high
 - prefer staged narrowing over baseline harshness
+- prefer edge-phased collapse over matrix-wide switching when timing is the target
 - admit further graph elaboration only if it improves local ordering under the sustained-pruning metric
 
 ## What the current results permit
@@ -153,7 +156,7 @@ It also supports a sharper methodological claim:
 - `v0.13` shows that Daisyworld local timing failure is real and not cured by metric correction or slack alone
 - `v0.14` shows that window-driven local closure is part of the answer
 - `v0.15` shows that window-gated local marginality is also part of the answer
-- `v0.17-v0.19` show that admissibility structure is a legitimate mechanism family and that staged graph tightening is better than a one-shot graph switch
+- `v0.17-v0.20` show that admissibility structure is a legitimate mechanism family and that edge-phased graph tightening is the strongest version of that branch so far
 
 So the model is currently licensed to speak of:
 - partial hysteresis,
@@ -175,4 +178,5 @@ The right use of the literature here is narrow and hard-headed:
 
 A blunter version, for my own future reference:
 
-> The literature does not hand me a Bronze Age fragility constant. It does, however, tell me that leakage should probably be low but real, that male-line filtering institutions commonly co-occur, and that the empirical target is not merely collapse but a particular topology: bounded compression plus survivor burst. It also tells me not to begin the machine with everyone already hanging over the cliff and then pretend later brittleness is profound. And if I add a damage term, it had better mean reduced recoverability and institutional overfitting, not stage fog. At present the machine is allowed to claim partial scar, not grand irreversible ruin. The present uglier lesson is that hysteresis seems to matter most when it makes persistence itself stickier, not merely when it weakens informal recovery at the margin. The present topological lesson is that some of the global shape was probably missing archipelago rather than missing scalar scar. The present graph lesson is that admissibility topology is real, but only if the baseline world is genuinely open and tightening propagates in stages. That is enough to keep the model from wandering off into just-so theater.
+> The literature does not hand me a Bronze Age fragility constant. It does, however, tell me that leakage should probably be low but real, that male-line filtering institutions commonly co-occur, and that the empirical target is not merely collapse but a particular topology: bounded compression plus survivor burst. It also tells me not to begin the machine with everyone already hanging over the cliff and then pretend later brittleness is profound. And if I add a damage term, it had better mean reduced recoverability and institutional overfitting, not stage fog. At present the machine is allowed to claim partial scar, not grand irreversible ruin. The present uglier lesson is that hysteresis seems to matter most when it makes persistence itself stickier, not merely when it weakens informal recovery at the margin. The present topological lesson is that some of the global shape was probably missing archipelago rather than missing scalar scar. The present graph lesson is that admissibility topology is real, but only if the baseline world is genuinely open and tightening propagates in phases, and more strongly still if different bridges collapse on different schedules. That is enough to keep the model from wandering off into just-so theater.
+
